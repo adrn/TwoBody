@@ -10,3 +10,8 @@ cpdef cy_eccentric_anomaly_from_mean_anomaly_Newton1(
     np.ndarray[double, mode="c", ndim=1] M,
     np.ndarray[double, mode="c", ndim=1] e,
     double tol, int maxiter)
+
+cpdef cy_eccentric_anomaly_from_mean_anomaly_Householder3(
+    np.ndarray[double, mode="c", ndim=1] M,
+    np.ndarray[double, mode="c", ndim=1] e,
+    double tol, int maxiter)
