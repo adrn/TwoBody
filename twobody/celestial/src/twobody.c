@@ -52,7 +52,10 @@ double c_eccentric_anomaly_from_mean_anomaly_Newton1(double M, double e,
         dM = M - c_mean_anomaly_from_eccentric_anomaly(E, e);
         E = E + dM / (1. - e * cos(E));
 
-        if (abs(dM) < tol)
+        if (fabs(dM) < tol) {
             break;
+        }
+
     }
+    return E;
 }

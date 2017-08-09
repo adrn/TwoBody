@@ -11,5 +11,5 @@ from ._astropy_init import *
 # ----------------------------------------------------------------------------
 
 if not _ASTROPY_SETUP_:
-    from .core import *
+    from . import celestial
 

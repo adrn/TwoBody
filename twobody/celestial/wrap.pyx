@@ -34,7 +34,7 @@ cpdef cy_mean_anomaly_from_eccentric_anomaly(
     cdef:
         int n
         int N = len(E)
-        np.ndarray[double, mode="c", ndim=1] M = np.zeros(N)
+        np.ndarray[double, mode="c", ndim=1] M = np.zeros(N, dtype=np.float64)
 
     for n in range(N):
         M[n] = c_mean_anomaly_from_eccentric_anomaly(E[n], e[n])
@@ -51,10 +51,10 @@ cpdef cy_eccentric_anomaly_from_mean_anomaly_Newton1(
     cdef:
         int n
         int N = len(M)
-        np.ndarray[double, mode="c", ndim=1] E = np.zeros(N)
+        np.ndarray[double, mode="c", ndim=1] E = np.zeros(N, dtype=np.float64)
 
     for n in range(N):
         E[n] = c_eccentric_anomaly_from_mean_anomaly_Newton1(M[n], e[n], tol, maxiter)
 
-    return M
+    return E
 
