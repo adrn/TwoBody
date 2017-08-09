@@ -1,4 +1,5 @@
 #include <math.h>
+#include "twobody.h"
 
 double c_mean_anomaly_from_eccentric_anomaly(double E, double e) {
     /*
@@ -48,7 +49,7 @@ double c_eccentric_anomaly_from_mean_anomaly_Newton1(double M, double e,
     E = M + e * sin(M);
 
     for (int i=0; i<maxiter; i++) {
-        dM = M - mean_anomaly_from_eccentric_anomaly(E, e);
+        dM = M - c_mean_anomaly_from_eccentric_anomaly(E, e);
         E = E + dM / (1. - e * cos(E));
 
         if (abs(dM) < tol)

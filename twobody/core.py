@@ -24,8 +24,8 @@ __all__ = ['mean_anomaly_from_eccentric_anomaly',
            'd_true_anomaly_d_eccentric_anomaly',
            'Z_from_elements', 'rv_from_elements']
 
-from .wrap import (_mean_anomaly_from_eccentric_anomaly,
-                   _eccentric_anomaly_from_mean_anomaly_Newton1)
+from .celestial import (cy_mean_anomaly_from_eccentric_anomaly,
+                        cy_eccentric_anomaly_from_mean_anomaly_Newton1)
 
 def mean_anomaly_from_eccentric_anomaly(E, e):
     """
@@ -42,7 +42,7 @@ def mean_anomaly_from_eccentric_anomaly(E, e):
         Mean anomaly.
     """
     # TODO: contiguous, 1D, etc.
-    return _mean_anomaly_from_eccentric_anomaly(E, e)
+    return cy_mean_anomaly_from_eccentric_anomaly(E, e)
 
 def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128):
     """
@@ -68,7 +68,7 @@ def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128):
     - Magic numbers ``tol`` and ``maxiter``
     """
     # TODO: contiguous, 1D, etc.
-    return _eccentric_anomaly_from_mean_anomaly_Newton1(M, e, tol, maxiter)
+    return cy_eccentric_anomaly_from_mean_anomaly_Newton1(M, e, tol, maxiter)
 
 def true_anomaly_from_eccentric_anomaly(Es, e):
     """

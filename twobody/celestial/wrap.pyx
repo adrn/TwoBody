@@ -17,33 +17,31 @@ cimport cython
 # from libc.stdio cimport printf
 
 cdef extern from "src/twobody.h":
-    double c_mean_anomaly_from_eccentric_anomaly(double E, double e) nogil
+    double c_mean_anomaly_from_eccentric_anomaly(double E, double e)
     double c_eccentric_anomaly_from_mean_anomaly_Newton1(double M, double e,
                                                          double tol,
-                                                         int maxiter) nogil
+                                                         int maxiter)
 
-__all__ = ['_mean_anomaly_from_eccentric_anomaly',
-           '_eccentric_anomaly_from_mean_anomaly_Newton1']
+__all__ = ['cy_mean_anomaly_from_eccentric_anomaly',
+           'cy_eccentric_anomaly_from_mean_anomaly_Newton1']
 
-cpdef _mean_anomaly_from_eccentric_anomaly(
+cpdef cy_mean_anomaly_from_eccentric_anomaly(
         np.ndarray[double, mode="c", ndim=1] E,
         np.ndarray[double, mode="c", ndim=1] e):
     """
 
     """
     cdef:
-        double _E
-        double _e
         int n
         int N = len(E)
         np.ndarray[double, mode="c", ndim=1] M = np.zeros(N)
 
     for n in range(N):
-        M[n] = c_mean_anomaly_from_eccentric_anomaly(_E, _e)
+        M[n] = c_mean_anomaly_from_eccentric_anomaly(E[n], e[n])
 
     return M
 
-cpdef _eccentric_anomaly_from_mean_anomaly_Newton1(
+cpdef cy_eccentric_anomaly_from_mean_anomaly_Newton1(
         np.ndarray[double, mode="c", ndim=1] M,
         np.ndarray[double, mode="c", ndim=1] e,
         double tol, int maxiter):
@@ -51,14 +49,12 @@ cpdef _eccentric_anomaly_from_mean_anomaly_Newton1(
 
     """
     cdef:
-        double _M
-        double _e
         int n
         int N = len(M)
         np.ndarray[double, mode="c", ndim=1] E = np.zeros(N)
 
     for n in range(N):
-        E[n] = c_eccentric_anomaly_from_mean_anomaly_Newton1(_M, _e)
+        E[n] = c_eccentric_anomaly_from_mean_anomaly_Newton1(M[n], e[n], tol, maxiter)
 
     return M
 
