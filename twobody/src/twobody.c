@@ -1,6 +1,6 @@
 #include <math.h>
 
-double mean_anomaly_from_eccentric_anomaly(double E, double e) {
+double c_mean_anomaly_from_eccentric_anomaly(double E, double e) {
     /*
     Parameters
     ----------
@@ -17,8 +17,8 @@ double mean_anomaly_from_eccentric_anomaly(double E, double e) {
     return E - e * sin(E);
 }
 
-double eccentric_anomaly_from_mean_anomaly_Newton1(double M, double e,
-                                                   double tol, int maxiter) {
+double c_eccentric_anomaly_from_mean_anomaly_Newton1(double M, double e,
+                                                     double tol, int maxiter) {
     /*
     tol = 1E-13
     maxiter = 128
