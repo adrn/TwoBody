@@ -50,7 +50,9 @@ def z_from_elements(times, P, K, e, omega, time0):
     return rs * np.sin(omega + fs)
 
 def rv_from_elements(times, P, K, e, omega, phi0, anomaly_tol=None):
-    """
+    """Compute the dadial velocity of the primary relative to the Barycenter of
+    the system at the specified times.
+
     Parameters
     ----------
     times : array_like [day]
