@@ -1,4 +1,5 @@
 # Third-party
+from astropy.utils.misc import check_broadcast
 import numpy as np
 
 from .wrap import (cy_mean_anomaly_from_eccentric_anomaly,
@@ -9,6 +10,36 @@ __all__ = ['mean_anomaly_from_eccentric_anomaly',
            'true_anomaly_from_eccentric_anomaly',
            'd_eccentric_anomaly_d_mean_anomaly',
            'd_true_anomaly_d_eccentric_anomaly']
+
+class _ArrayProcessor(object):
+
+    def __init__(self, *arrs):
+        self.arrs = [np.array(arr) for arr in arrs]
+
+    def prepare_arrays(self):
+        """Make sure input arrays are all C-contiguous and have same shape."""
+        self.max_shape = None
+        for arr in self.arrs:
+            if self.max_shape is None:
+                self.max_shape = arr.shape
+            elif arr.shape > self.max_shape:
+                self.max_shape = arr.shape
+
+        orig_shapes = []
+        arrs_1d = []
+        for arr in self.arrs:
+            orig_shapes.append(arr.shape)
+            arr = np.broadcast_to(arr, self.max_shape).ravel()
+            arrs_1d.append(np.ascontiguousarray(arr))
+
+        if not check_broadcast(orig_shapes):
+            raise ValueError("Shapes are not broadcastable: {0}"
+                             .format(orig_shapes))
+
+        return arrs_1d
+
+    def prepare_result(self, res):
+        return res.reshape(self.max_shape)
 
 def mean_anomaly_from_eccentric_anomaly(E, e):
     """
@@ -24,8 +55,9 @@ def mean_anomaly_from_eccentric_anomaly(E, e):
     M : numeric, array_like [radian]
         Mean anomaly.
     """
-    return cy_mean_anomaly_from_eccentric_anomaly(np.ascontiguousarray(E),
-                                                  np.ascontiguousarray(e))
+    p = _ArrayProcessor(E, e)
+    E, e = p.prepare_arrays()
+    return p.prepare_result(cy_mean_anomaly_from_eccentric_anomaly(E, e))
 
 def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128,
                                         method='Newton1'):
@@ -57,8 +89,10 @@ def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128,
 
     func_name = "cy_eccentric_anomaly_from_mean_anomaly_{0}".format(method)
     func = eval(func_name)
-    return func(np.ascontiguousarray(M), np.ascontiguousarray(e),
-                tol, maxiter)
+
+    p = _ArrayProcessor(M, e)
+    M, e = p.prepare_arrays()
+    return p.prepare_result(func(M, e, tol, maxiter))
 
 def true_anomaly_from_eccentric_anomaly(E, e):
     """

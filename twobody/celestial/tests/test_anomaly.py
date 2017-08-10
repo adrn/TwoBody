@@ -18,9 +18,11 @@ def test_mean_anomaly_from_eccentric_anomaly():
     # call with float
     for E, e in zip(Es, es):
         M = mean_anomaly_from_eccentric_anomaly(E, e)
+        assert M.shape == ()
 
     # call with arrays
     M = mean_anomaly_from_eccentric_anomaly(Es, es)
+    assert M.shape == Es.shape
 
 @pytest.mark.parametrize("method", ["Newton1", "Householder3"])
 def test_eccentric_anomaly_from_mean_anomaly(method):
@@ -31,9 +33,11 @@ def test_eccentric_anomaly_from_mean_anomaly(method):
     # call with float
     for M, e in zip(Ms, es):
         E = eccentric_anomaly_from_mean_anomaly(M, e, method=method)
+        assert E.shape == ()
 
     # call with arrays
     E = eccentric_anomaly_from_mean_anomaly(Ms, es)
+    assert E.shape == Ms.shape
 
 @pytest.mark.parametrize("method", ["Newton1", "Householder3"])
 def test_anomaly_roundtrip(method):
