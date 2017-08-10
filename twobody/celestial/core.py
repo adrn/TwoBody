@@ -6,11 +6,11 @@ au_per_day_m_s = (1*u.m/u.s*u.day).to(u.au).value
 from .anomaly import (eccentric_anomaly_from_mean_anomaly,
                       true_anomaly_from_eccentric_anomaly)
 
-__all__ = ['Z_from_elements', 'rv_from_elements']
+__all__ = ['z_from_elements', 'rv_from_elements']
 
-def Z_from_elements(times, P, K, e, omega, time0):
-    """
-    Z points towards the observer.
+def z_from_elements(times, P, K, e, omega, time0):
+    """Position of the primary along axis connecting the Barycenter and the
+    observer.
 
     Parameters
     ----------
@@ -30,12 +30,8 @@ def Z_from_elements(times, P, K, e, omega, time0):
     Returns
     -------
     Z : numeric [AU]
-        Line-of-sight position.
-
-    TODO
-    ----
-    - Doesn't include system Z value (Z offset or Z zeropoint) or option to
-      specify this quantity. This is the observer-barycenter distance.
+        Relative line-of-sight position; does not include distance to the
+        Barycenter of the system!
 
     """
     times = np.array(times)

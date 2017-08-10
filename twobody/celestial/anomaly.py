@@ -7,7 +7,9 @@ from .wrap import (cy_mean_anomaly_from_eccentric_anomaly,
                    cy_eccentric_anomaly_from_mean_anomaly_Householder3)
 
 __all__ = ['mean_anomaly_from_eccentric_anomaly',
+           'eccentric_anomaly_from_mean_anomaly',
            'true_anomaly_from_eccentric_anomaly',
+           'eccentric_anomaly_from_true_anomaly',
            'd_eccentric_anomaly_d_mean_anomaly',
            'd_true_anomaly_d_eccentric_anomaly']
 
