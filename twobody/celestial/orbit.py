@@ -162,7 +162,6 @@ class RVOrbit(object):
         style.setdefault('linestyle', '-')
         style.setdefault('alpha', 0.5)
         style.setdefault('marker', None)
-        style.setdefault('color', '#de2d26')
 
         if not isinstance(t, at.Time):
             t = at.Time(t, **t_kwargs)

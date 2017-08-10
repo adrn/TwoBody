@@ -48,16 +48,16 @@ def test_init_rvorbit():
 def test_plotting():
     orbit = RVOrbit(**default_pars)
 
-    mjd = np.linspace(56823.123, 57293.2345, 128) # magic numbers
+    mjd = np.linspace(56823.123, 57293.2345, 1024) # random MJD's
     t = Time(mjd, format='mjd', scale='utc')
 
     # plotting
     for _t in [mjd, t]:
         orbit.plot(_t)
-        orbit.plot(_t, t_format='jd', t_scale='utc')
+        orbit.plot(_t, t_kwargs=dict(format='jd', scale='utc'))
 
     fig,ax = plt.subplots(1,1)
-    orbit.plot(t=t, ax=ax)
+    orbit.plot(t=t, ax=ax, plot_kwargs=dict(color='#de2d26'))
 
     fig,ax = plt.subplots(1,1)
     orbit.plot(t=mjd, ax=ax)
