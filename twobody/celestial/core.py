@@ -70,7 +70,7 @@ def rv_from_elements(times, P, K, e, omega, phi0, anomaly_tol=None):
         Argument of periastron.
     phi0 : numeric [radian]
         Phase at pericenter relative to t=0.
-    anomaly_tol : numeric (optional)
+    anomaly_tol : numeric, optional
         Tolerance passed to
         `~twobody.celestial.eccentric_anomaly_from_mean_anomaly` for solving for
         the eccentric anomaly. See default value in that function.

@@ -6,9 +6,9 @@ def eccentric_anomaly_from_mean_anomaly_Householder3(Ms, e, tol=1E-13, maxiter=1
         Mean anomaly.
     e : numeric
         Eccentricity.
-    tol : numeric (optional)
+    tol : numeric, optional
         Numerical tolerance used in iteratively solving for eccentric anomaly.
-    maxiter : int (optional)
+    maxiter : int, optional
         Maximum number of iterations when iteratively solving for
         eccentric anomaly.
 
@@ -50,4 +50,4 @@ def eccentric_anomaly_from_mean_anomaly_Householder3(Ms, e, tol=1E-13, maxiter=1
         warnings.warn("eccentric_anomaly_from_mean_anomaly() reached maximum "
                       "number of iterations ({})".format(maxiter), RuntimeWarning)
     return Es
-    
+

@@ -25,10 +25,10 @@ def get_t0(phi0, P, ref_mjd, max_iter=16):
 
     Parameters
     ----------
-    phi0 : `~astropy.units.Quantity`, numeric [angle]
+    phi0 : :class:`~astropy.units.Quantity`, numeric [angle]
         The phase at pericenter, either as an Astropy Quantity with angle units
         or as a number, assumed to be in radians.
-    P : `~astropy.units.Quantity` [time]
+    P : :class:`~astropy.units.Quantity` [time]
         The period.
     ref_mjd : numeric
         Reference MJD.
