@@ -3,7 +3,8 @@ import astropy.units as u
 from astropy.time import Time
 import numpy as np
 
-__all__ = ['VelocityTrend1', 'VelocityTrend2', 'VelocityTrend3']
+__all__ = ['VelocityTrend0', 'VelocityTrend1', 'VelocityTrend2',
+           'VelocityTrend3']
 
 class VelocityTrend(object):
     pass
@@ -79,6 +80,9 @@ class PolynomialVelocityTrend(VelocityTrend):
 
         return np.polyval([x.value for x in self.coeffs[::-1]],
                           t.to(u.day).value - self.t0) * self._v_unit
+
+class VelocityTrend0(PolynomialVelocityTrend): # None
+    parameters = []
 
 class VelocityTrend1(PolynomialVelocityTrend): # constant
     parameters = ['v0']
