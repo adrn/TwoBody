@@ -1,5 +1,6 @@
 # Third-party
 import astropy.units as u
+from astropy.time import Time
 import numpy as np
 
 __all__ = ['PolynomialVelocityTrend']
@@ -17,13 +18,15 @@ class PolynomialVelocityTrend(VelocityTrend):
         The coefficients of the polynomial in increasing order. That is, the
         power is the index of the coefficient, so the 0th coefficient is the
         constant, the 1st coefficient is the linear term, etc.
+    t0 : :class:`~astropy.time.Time`, numeric, optional
+        Reference time, as an object or in BMJD.
 
     TODO
     ----
     - We could add support for a reference epoch (other than mjd=0) in here...
 
     """
-    def __init__(self, *coeffs):
+    def __init__(self, *coeffs, t0=None):
         self.coeffs = []
 
         for i, coeff in enumerate(coeffs):
@@ -43,6 +46,14 @@ class PolynomialVelocityTrend(VelocityTrend):
 
         self.coeffs = list(coeffs)
 
+        if t0 is None:
+            t0 = 0.
+
+        elif isinstance(t0, Time):
+            t0 = t0.tcb.mjd
+
+        self.t0 = t0
+
     def __call__(self, t):
         if len(self.coeffs) == 0:
             raise ValueError("To evaluate the trend, you must have supplied "
@@ -57,7 +68,7 @@ class PolynomialVelocityTrend(VelocityTrend):
                                "units!")
 
         return np.polyval([x.value for x in self.coeffs[::-1]],
-                          t.to(u.day).value) * self._v_unit
+                          t.to(u.day).value - self.t0) * self._v_unit
 
 # class PiecewisePolynomialVelocityTrend(VelocityTrend):
 #     # TODO:
