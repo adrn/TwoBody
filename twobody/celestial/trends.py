@@ -15,7 +15,7 @@ class VelocityTrend(object):
 
 class PolynomialVelocityTrend(VelocityTrend):
 
-    def __init__(self, *coeffs, t0=None):
+    def __init__(self, *coeffs, t0=None, **kwargs):
         """
         Represents a long-term {0} radial velocity trend.
 
@@ -32,6 +32,9 @@ class PolynomialVelocityTrend(VelocityTrend):
         self._n_params = len(self.parameters)
 
         self.coeffs = []
+
+        if len(coeffs) == 0 and kwargs:
+            coeffs = [kwargs[k] for k in self.parameters]
 
         for i, coeff in enumerate(coeffs):
             if not hasattr(coeff, 'unit'):
