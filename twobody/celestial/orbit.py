@@ -5,7 +5,7 @@ import astropy.units as u
 # Project
 from .core import rv_from_elements
 from .transforms import get_t0, a1_sini, mf
-from .trends import PolynomialVelocityTrend
+from .trends import PolynomialVelocityTrend, VelocityTrend1
 
 __all__ = ['RVOrbit']
 
@@ -42,7 +42,7 @@ class RVOrbit(object):
         To create an orbit with no long-term trend but a systemic velocity of
         :math:`150\,{\rm km/s}`::
 
-            >>> trend = PolynomialVelocityTrend(150*u.km/u.s)
+            >>> trend = VelocityTrend1(150*u.km/u.s)
             >>> RVOrbit(P=100*u.day, K=8*u.km/u.s, ecc=0.243, phi0=0*u.deg,
             ...         omega=0*u.deg, trend=trend) # doctest: +SKIP
 

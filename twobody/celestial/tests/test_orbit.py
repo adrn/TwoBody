@@ -13,7 +13,7 @@ except:
 
 # Package
 from ..orbit import RVOrbit
-from ..trends import PolynomialVelocityTrend
+from ..trends import VelocityTrend2 # linear
 
 # default orbit parameters
 default_pars = dict(P=30.*u.day, K=100.*u.m/u.s, ecc=0.11239,
@@ -33,7 +33,7 @@ def test_init_rvorbit():
     # with trend - check t0
     pars = dict(P=1.*u.day, K=100.*u.m/u.s, ecc=0.,
                 omega=0.*u.radian, phi0=90*u.degree)
-    trend = PolynomialVelocityTrend(100.*u.km/u.s, 1*u.km/u.s/u.day, t0=55831.)
+    trend = VelocityTrend2(100.*u.km/u.s, 1*u.km/u.s/u.day, t0=55831.)
     orbit1 = RVOrbit(trend=trend, **pars)
     assert quantity_allclose(orbit1(55831.), 100 * u.km/u.s)
 
