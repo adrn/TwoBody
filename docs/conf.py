@@ -112,7 +112,7 @@ release = package.__version__
 # name of a builtin theme or the name of a custom theme in html_theme_path.
 #html_theme = None
 
-html_theme = "Alabaster"
+html_theme = "alabaster"
 
 
 
