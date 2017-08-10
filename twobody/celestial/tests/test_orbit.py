@@ -44,6 +44,12 @@ def test_init_rvorbit():
     mjd0 = [orbit.t0(x).tcb.mjd for x in mjd_grid]
     assert np.allclose(mjd0, expected)
 
+def test_attributes():
+    orbit = RVOrbit(**default_pars)
+
+    for attr in ['a1_sini', 'mf']:
+        getattr(orbit, attr)
+
 @pytest.mark.skipif(not HAS_MPL, reason="matplotlib not installed")
 def test_plotting():
     orbit = RVOrbit(**default_pars)

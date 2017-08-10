@@ -19,7 +19,7 @@ class RVOrbit(object):
 
         >>> trend = PolynomialVelocityTrend(150*u.km/u.s)
         >>> RVOrbit(P=100*u.day, K=8*u.km/u.s, ecc=0.243, phi0=0*u.deg,
-        ...         omega=0*u.deg, trend=trend)
+        ...         omega=0*u.deg, trend=trend) # doctest: +SKIP
 
     Parameters
     ----------
