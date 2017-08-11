@@ -5,6 +5,8 @@ au_per_day_m_s = (1*u.m/u.s*u.day).to(u.au).value
 
 from .anomaly import (eccentric_anomaly_from_mean_anomaly,
                       true_anomaly_from_eccentric_anomaly)
+from .wrap import cy_rv_from_elements
+from .utils import ArrayProcessor
 
 __all__ = ['z_from_elements', 'rv_from_elements']
 
@@ -49,7 +51,8 @@ def z_from_elements(times, P, K, e, omega, time0):
 
     return rs * np.sin(omega + fs)
 
-def rv_from_elements(times, P, K, e, omega, phi0, anomaly_tol=None):
+def rv_from_elements(times, P, K, e, omega, phi0,
+                     anomaly_tol=None, anomaly_maxiter=None):
     """Compute the dadial velocity of the primary relative to the Barycenter of
     the system at the specified times.
 
@@ -78,14 +81,14 @@ def rv_from_elements(times, P, K, e, omega, phi0, anomaly_tol=None):
     rv : numeric [m/s]
         Relative radial velocity - does not include systemtic velocity!
     """
-    times = np.array(times)
-    Ms = (2 * np.pi * times / P) - phi0
+    if anomaly_tol is None:
+        anomaly_tol = 1E-10
 
-    kw = dict()
-    if anomaly_tol is not None:
-        kw['tol'] = anomaly_tol
-    Es = eccentric_anomaly_from_mean_anomaly(Ms, e, **kw)
-    fs = true_anomaly_from_eccentric_anomaly(Es, e)
-    vz = K * (np.cos(omega + fs) + e*np.cos(omega))
+    if anomaly_maxiter is None:
+        anomaly_maxiter = 128
 
-    return vz
+    proc = ArrayProcessor(times)
+    t, = proc.prepare_arrays()
+    rv = cy_rv_from_elements(t, P, K, e, omega, phi0,
+                             anomaly_tol, anomaly_maxiter)
+    return np.atleast_1d(proc.prepare_result(rv))
