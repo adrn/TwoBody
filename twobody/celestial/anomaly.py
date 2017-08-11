@@ -4,7 +4,9 @@ import numpy as np
 
 from .wrap import (cy_mean_anomaly_from_eccentric_anomaly,
                    cy_eccentric_anomaly_from_mean_anomaly_Newton1,
-                   cy_eccentric_anomaly_from_mean_anomaly_Householder3)
+                   cy_eccentric_anomaly_from_mean_anomaly_Householder3,
+                   cy_true_anomaly_from_eccentric_anomaly,
+                   cy_eccentric_anomaly_from_true_anomaly)
 
 __all__ = ['mean_anomaly_from_eccentric_anomaly',
            'eccentric_anomaly_from_mean_anomaly',
@@ -32,7 +34,7 @@ class _ArrayProcessor(object):
         for arr in self.arrs:
             orig_shapes.append(arr.shape)
             arr = np.broadcast_to(arr, self.max_shape).ravel()
-            arrs_1d.append(np.ascontiguousarray(arr))
+            arrs_1d.append(np.ascontiguousarray(arr.astype(np.float64)))
 
         if not check_broadcast(orig_shapes):
             raise ValueError("Shapes are not broadcastable: {0}"
@@ -57,6 +59,7 @@ def mean_anomaly_from_eccentric_anomaly(E, e):
     M : numeric, array_like [radian]
         Mean anomaly.
     """
+    # TODO: in principle, this could be a decorator
     p = _ArrayProcessor(E, e)
     E, e = p.prepare_arrays()
     return p.prepare_result(cy_mean_anomaly_from_eccentric_anomaly(E, e))
@@ -110,9 +113,9 @@ def true_anomaly_from_eccentric_anomaly(E, e):
     f : numeric [radian]
         True anomaly.
     """
-    f = 2 * np.arctan2(np.sqrt(1+e) * np.sin(E/2),
-                       np.sqrt(1-e) * np.cos(E/2))
-    return f % (2*np.pi)
+    p = _ArrayProcessor(E, e)
+    E, e = p.prepare_arrays()
+    return p.prepare_result(cy_true_anomaly_from_eccentric_anomaly(E, e))
 
 def eccentric_anomaly_from_true_anomaly(f, e):
     """
@@ -128,10 +131,11 @@ def eccentric_anomaly_from_true_anomaly(f, e):
     E : numeric [radian]
         Eccentric anomaly.
     """
-    E = np.arctan2(np.sqrt(1 - e**2) * np.sin(f),
-                   e + np.cos(f))
-    return E % (2*np.pi)
+    p = _ArrayProcessor(f, e)
+    E, e = p.prepare_arrays()
+    return p.prepare_result(cy_eccentric_anomaly_from_true_anomaly(E, e))
 
+# Functions below aren't really used...
 def d_eccentric_anomaly_d_mean_anomaly(E, e):
     """
     Parameters

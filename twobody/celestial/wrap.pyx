@@ -26,9 +26,14 @@ cdef extern from "src/twobody.h":
                                                               double tol,
                                                               int maxiter)
 
+    double c_true_anomaly_from_eccentric_anomaly(double E, double e)
+    double c_eccentric_anomaly_from_true_anomaly(double f, double e)
+
 __all__ = ['cy_mean_anomaly_from_eccentric_anomaly',
            'cy_eccentric_anomaly_from_mean_anomaly_Newton1',
-           'cy_eccentric_anomaly_from_mean_anomaly_Householder3']
+           'cy_eccentric_anomaly_from_mean_anomaly_Householder3',
+           'cy_true_anomaly_from_eccentric_anomaly',
+           'cy_eccentric_anomaly_from_true_anomaly']
 
 cpdef cy_mean_anomaly_from_eccentric_anomaly(
         np.ndarray[double, mode="c", ndim=1] E,
@@ -82,3 +87,36 @@ cpdef cy_eccentric_anomaly_from_mean_anomaly_Householder3(
 
     return E
 
+# ----------------------------------------------------------------------------0
+
+cpdef cy_true_anomaly_from_eccentric_anomaly(
+        np.ndarray[double, mode="c", ndim=1] E,
+        np.ndarray[double, mode="c", ndim=1] e):
+    """
+
+    """
+    cdef:
+        int n
+        int N = len(E)
+        np.ndarray[double, mode="c", ndim=1] f = np.zeros(N, dtype=np.float64)
+
+    for n in range(N):
+        f[n] = c_true_anomaly_from_eccentric_anomaly(E[n], e[n])
+
+    return f
+
+cpdef cy_eccentric_anomaly_from_true_anomaly(
+        np.ndarray[double, mode="c", ndim=1] f,
+        np.ndarray[double, mode="c", ndim=1] e):
+    """
+
+    """
+    cdef:
+        int n
+        int N = len(f)
+        np.ndarray[double, mode="c", ndim=1] E = np.zeros(N, dtype=np.float64)
+
+    for n in range(N):
+        E[n] = c_eccentric_anomaly_from_true_anomaly(f[n], e[n])
+
+    return E

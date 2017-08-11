@@ -1,6 +1,15 @@
 #include <math.h>
 #include "twobody.h"
 
+double mod_angle(double x){
+    x = fmod(x, 2*M_PI);
+    if (x < 0)
+        x += 2*M_PI;
+    return x;
+}
+
+// Mean anomaly <--> Eccentric anomaly
+
 double c_mean_anomaly_from_eccentric_anomaly(double E, double e) {
     /*
     Parameters
@@ -113,4 +122,48 @@ double c_eccentric_anomaly_from_mean_anomaly_Householder3(double M, double e,
 
     }
     return E;
+}
+
+// True anomaly <--> Eccentric anomaly
+
+double c_true_anomaly_from_eccentric_anomaly(double E, double e) {
+    /*
+    Parameters
+    ----------
+    E : double [radian]
+        Eccentric anomaly.
+    e : double
+        Eccentricity.
+
+    Returns
+    -------
+    f : double [radian]
+        True anomaly.
+    */
+    double f;
+
+    f = 2 * atan2(sqrt(1+e) * sin(E/2),
+                  sqrt(1-e) * cos(E/2));
+
+    return mod_angle(f);
+}
+
+double c_eccentric_anomaly_from_true_anomaly(double f, double e) {
+    /*
+    Parameters
+    ----------
+    f : double [radian]
+        True anomaly.
+    e : double
+        Eccentricity.
+
+    Returns
+    -------
+    E : double [radian]
+        Eccentric anomaly.
+
+    */
+    double E;
+    E = atan2(sqrt(1 - e*e) * sin(f), e + cos(f));
+    return mod_angle(E);
 }
