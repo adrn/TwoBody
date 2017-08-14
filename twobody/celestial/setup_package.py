@@ -20,4 +20,4 @@ def get_extensions():
     return exts
 
 def get_package_data():
-    return {'twobody.celestial': ['src/*.h', 'src/*.c', '*.pyx']}
+    return {'twobody.celestial': ['src/*.h', 'src/*.c', '*.pyx', '*.pxd']}
