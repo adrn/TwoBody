@@ -87,8 +87,6 @@ velocity of the body in the orbital plane coordinates is:
     &= \frac{2\pi \, a}{P \, \sqrt{1 - e^2}} \, \left[\cos{f} + e\right]
 
 
-
-
 See also:
 * https://arxiv.org/pdf/1711.06601.pdf
 * https://arxiv.org/pdf/1009.1738.pdf
