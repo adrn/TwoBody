@@ -6,6 +6,7 @@ import numpy as np
 
 # Project
 from ..elements import KeplerElements, TwoBodyKeplerElements
+from ..orbit import KeplerOrbit
 
 # TwoBody API exploration
 # Note: Anything labeled "Future: v2.0" will be implemented later.
