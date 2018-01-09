@@ -1,4 +1,11 @@
+# Third-party
+import astropy.coordinates as coord
 import astropy.units as u
+from astropy.tests.helper import quantity_allclose
+import numpy as np
+
+# Project
+from ..elements import KeplerElements, TwoBodyKeplerElements
 
 # TwoBody API exploration
 # Note: Anything labeled "Future: v2.0" will be implemented later.
@@ -9,20 +16,8 @@ elem = KeplerElements(a=1.5*u.au, e=0.5, P=1.*u.year,
                       omega=67*u.deg, i=21.*u.deg, Omega=33*u.deg,
                       M0=53*u.deg, t0=59112.1423)
 
-# The class supports specifying (a, e, P), (P, e, m_tot), or (a, e, m_tot):
-elem = KeplerElements(a=1.5*u.au, e=0.5, m_tot=1.*u.Msun,
-                      omega=67*u.deg, i=21.*u.deg, Omega=33*u.deg,
-                      M0=53*u.deg, t0=59112.1423)
-
-elem = KeplerElements(P=1.*u.yr, e=0.5, m_tot=1.*u.Msun,
-                      omega=67*u.deg, i=21.*u.deg, Omega=33*u.deg,
-                      M0=53*u.deg, t0=59112.1423)
-
 # The elements correspond to a specific orbit, so if this is one component of a
-# binary, a actually corresponds to a1. For the limit in which this is a
-# star-planet system, m_tot would correspond to the star mass, and the elements
-# would correspond to the planet's orbit.
-# TODO: maybe rename m_tot -> mass?
+# binary, a actually corresponds to a1.
 
 # In the above, the epoch, t0, is assumed to be MJD if a number is passed in,
 # but it can also be specified as an astropy.time.Time object:
@@ -41,11 +36,9 @@ assert elem.t0 == at.Time('J2000')
 # parameters within their element system. For example, with any input (see
 # above), the following attributes are available for a KeplerElements instance:
 elem.P
-elem.m_tot
 elem.a
-elem.m_f # "mass function"
+elem.m_f # "binary mass function"
 elem.K # velocity semi-amplitude
-# K = 2*np.pi * a1 * np.sin(i) / (P * np.sqrt(1-e**2))
 
 # To specify orbital elements of a binary or two-body system, use the
 # TwoBodyKeplerElements class. With this class, the orbital elements specified
@@ -62,8 +55,8 @@ elem = TwoBodyKeplerElements(m1=1*u.Msun, m2=2*u.Msun,
 elem1 = elem.get_component('1')
 elem2 = elem.get_component('2')
 # Or, using short-hand names:
-assert elem.primary == elem.get_component('1')
-assert elem.secondary == elem.get_component('2')
+# assert elem.primary == elem.get_component('1')
+# assert elem.secondary == elem.get_component('2')
 
 assert elem1.__class__ == KeplerElements
 assert quantity_allclose(elem1.a,
@@ -116,7 +109,7 @@ rv = orb.radial_velocity(time)
 # If instead we didn't specify any masses, the computed orbital properties [are
 # dimensionless TODO?] but can be scaled to a velocity. For example, the radial
 # velocity curve can be directly multiplied by a semi-amplitude:
-orb = KeplerOrbit(P=1.*u.year, e=0.5, mass=
+orb = KeplerOrbit(P=1.*u.year, e=0.5,
                   omega=67*u.deg, i=21.*u.deg, Omega=33*u.deg,
                   M0=53*u.deg, t0=t0)
 K = 10 * u.m/u.s

@@ -7,7 +7,69 @@ from astropy.time import Time
 from astropy.constants import G
 import numpy as np
 
-__all__ = ['get_t0', 'get_phi0', 'a1_sini', 'mf', 'mf_a1_sini_ecc_to_P_K']
+# Project
+from .utils import format_doc
+
+
+__all__ = ['a_P_to_m',
+           'get_t0', 'get_phi0', 'a1_sini', 'mf', 'mf_a1_sini_ecc_to_P_K']
+
+
+doc_a = """a : quantity_like [length]
+        Semi-major axis.
+"""
+
+doc_P = """P : quantity_like [time]
+        Period.
+"""
+
+doc_m = """m : quantity_like [mass]
+        Total mass.
+"""
+
+
+@u.quantity_input(a=u.au, P=u.day)
+@format_doc("""{__doc__}""", a=doc_a, P=doc_P)
+def a_P_to_m(a, P):
+    """Compute the total mass given the semi-major axis and period.
+
+    Parameters
+    ----------
+    {a}
+    {P}
+    """
+    return a**3 / G * (2*np.pi/P)**2
+
+
+@u.quantity_input(a=u.au, m=u.Msun)
+@format_doc("""{__doc__}""", a=doc_a, m=doc_m)
+def a_m_to_P(a, m):
+    """Compute the orbital period given the semi-major axis and total mass.
+
+    Parameters
+    ----------
+    {a}
+    {m}
+    """
+    return 2*np.pi * np.sqrt(a**3 / (G * m))
+
+
+@u.quantity_input(P=u.day, m=u.Msun)
+@format_doc("""{__doc__}""", P=doc_P, m=doc_m)
+def P_m_to_a(P, m):
+    """Compute the semi-major axis given the orbital period and total mass.
+
+    Parameters
+    ----------
+    {P}
+    {m}
+    """
+    return np.cbrt(G * m * (P/(2*np.pi))**2)
+
+
+
+
+
 
 @u.quantity_input(P=u.day)
 def get_t0(phi0, P, ref_mjd, max_iter=16):
