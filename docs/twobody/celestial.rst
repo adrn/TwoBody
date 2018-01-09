@@ -2,37 +2,70 @@
 Coordinate systems and celestial mechanics
 ******************************************
 
-We mostly follow the notation and conventions defined in `Murray and Correia
-(2010) <https://arxiv.org/pdf/1009.1738.pdf>`_. The position of an orbiting body
-in its orbital plane is given by the vector :math:`\boldsymbol{r} = \left(x, y,
-0\right)`. The basis for this coordinate system is defined such that
-:math:`\hat{x}` lies along the major axis of the orbit ellipse, increasing from
-apocenter to pericenter. The basis vector :math:`\hat{y}` also lies in the
-orbital plane and is perpendicular to :math:`\hat{x}`. The :math:`\hat{z}`
-direction is perpendicular to both, with the rotation of the full basis defined
-such that (TODO: aligned with angular momentum of orbit, or???). Orbital motion
+.. note::
+
+    We mostly follow the notation and conventions defined in `Murray and Correia
+    (2010) <https://arxiv.org/pdf/1009.1738.pdf>`_.
+
+The position of an orbiting body in its orbital plane is given by the vector
+:math:`\boldsymbol{r} = \left(x, y, 0\right)`. The basis for this coordinate
+system is defined such that :math:`\hat{x}` lies along the major axis of the
+orbit ellipse, increasing from apocenter to pericenter. The basis vector
+:math:`\hat{z}` is aligned with the orbital angular momentum and is
+perpendicular to :math:`\hat{x}`, and :math:`\hat{y}` lies in the orbital plane
+and is perpendicular to both :math:`\hat{x}` and :math:`\hat{z}`. Orbital motion
 is therefore constrained to the :math:`x`-:math:`y` plane by construction.
+
+The position of the body on its orbit, :math:`\boldsymbol{r} = (x, y, 0)`, can
+be expressed in terms of its orbital elements and time. First, we'll define the
+angles typically used in expressing solutions to the Kepler problem. These are
+the mean anomaly, :math:`M`, the eccentric anomaly, :math:`E`, and the true
+anomaly, :math:`f`. These can be expressed in terms of the period of the orbit
+:math:`P`, a time :math:`t`, a reference epoch :math:`t_0`, the orbital
+eccentricity :math:`e`, and the semi-major axis :math:`a`:
+
+.. math::
+
+    M &= \frac{2\pi}{P} \, (t - t_0) - M_0 \\
+    M &= E - e \, \sin{E} \\
+    f &= 2 \, {\rm atan2}\left(\sqrt{1+e} \, \sin\frac{E}{2},
+                               \sqrt{1-e} \, \cos\frac{E}{2}\right)\\
+    r &= a \, (1 - e\,\cos{E})
+
+In the above, :math:`r` is the distance of the body from the focus of the
+ellipse closest to pericenter. Using the above definitions, the position and
+velocity of the body in the orbital plane coordinates is:
+
+.. math::
+
+    x &= r \, \cos{f} \\
+    y &= r \, \sin{f} \\
+    v_x &= \dot{r} \, \cos{f} - r \, \dot{f} \, \sin{f} \\
+    &= -\frac{2\pi \, a}{P \, \sqrt{1 - e^2}} \, \sin{f} \\
+    v_y &= \dot{r} \, \sin{f} + r \, \dot{f} \, \cos{f} \\
+    &= \frac{2\pi \, a}{P \, \sqrt{1 - e^2}} \, \left[\cos{f} + e\right]
 
 Of course, orbits of celestial bodies are generically rotated in 3D with respect
 to the observer's perspective (usually assumed to be sitting at the solar system
-barycenter). The orbit is therefore typically defined in terms of orbital
-elements that rotate between the :math:`(x, y, z)` system and some other
+barycenter). The orientation of the orbit is therefore defined in terms of
+orbital elements that rotate between the :math:`(x, y, z)` system and another
 reference coordinate system :math:`(X, Y, Z)`. The reference plane must be
 defined, but a typical use case in astronomy uses the tangent plane at a point
-on the celestial sphere as the reference plane. The observer therefore sits
-along the positive :math:`Z` axis. See Figure 7 in `Murray and Correia
-(2010) <https://arxiv.org/pdf/1009.1738.pdf>`_. The angles that define the
-rotation from :math:`(x, y, z)` to :math:`(X, Y, Z)` are the longitude of the
-ascending node, :math:`\Omega`, the argument of pericenter, :math:`\omega`, and
-the inclination, :math:`i`. TODO: use their definition of inclination, from 0 to
-180 deg / prograde v. retrograde? The full transformation is then done in a
-series of three rotations: (1) rotate by :math:`\omega` around the :math:`z`
-axis to align :math:`x'` with the line of nodes, (2) rotate by :math:`i` around
-:math:`x'` to make the :math:`x'', y''` plane coincident with the reference
-plane, and (3) rotate by :math:`\Omega` around :math:`z''` to align :math:`x'''`
-with :math:`X`. So, to transform an orbit from its orbital plane to the
-reference system, the full transformation is given by the composition of three
-rotation matrices:
+on the celestial sphere as the reference plane, with the observer sitting along
+the positive :math:`Z` axis. See Figure 7 in `Murray and Correia (2010)
+<https://arxiv.org/pdf/1009.1738.pdf>`_.
+
+The angles that define the rotation from :math:`(x, y, z)` to :math:`(X, Y, Z)`
+are the angular components of the orbital elements: longitude of the ascending
+node, :math:`\Omega`, the argument of pericenter, :math:`\omega`, and the
+inclination, :math:`i`. The full transformation is then a series of three
+rotations: (1) rotate by :math:`\omega` around the :math:`z` axis to align
+:math:`x'` with the line of nodes, (2) rotate by :math:`i` around :math:`x'`
+to make the :math:`x'', y''` plane coincident with the reference plane, and (3)
+rotate by :math:`\Omega` around :math:`z''` to align :math:`x'''` with
+:math:`X`. So, to transform an orbit from its orbital plane to the reference
+system, the full transformation is given by the composition of three rotation
+matrices:
 
 .. math::
 
@@ -58,33 +91,6 @@ where
             \sin{\phi} & \cos{\phi} & 0 \\
             0 & 0 & 1
         \end{bmatrix}
-
-TODO: transition...
-
-The position of the body on its orbit, :math:`\boldsymbol{r} = (x, y, 0)`, can
-be expressed in terms of orbital elements. First, some definitions:
-
-.. math::
-
-    M &= \frac{2\pi}{P} \, (t - t_0) \\
-    M &= E - e \, \sin{E} \\
-    f &= 2 \, {\rm atan2}\left(\sqrt{1+e} \, \sin\frac{E}{2},
-                               \sqrt{1-e} \, \cos\frac{E}{2}\right)\\
-    r &= a \, (1 - e\,\cos{E})
-
-:math:`M` is the mean anomaly, :math:`t_0` is a reference time, :math:`E` is the
-eccentric anomaly, :math:`f` is the true anomaly, and :math:`r` is the distance
-of the body from the focus. Using the above definitions, the position and
-velocity of the body in the orbital plane coordinates is:
-
-.. math::
-
-    x &= r \, \cos{f} \\
-    y &= r \, \sin{f} \\
-    v_x &= \dot{r} \, \cos{f} - r \, \dot{f} \, \sin{f} \\
-    &= -\frac{2\pi \, a}{P \, \sqrt{1 - e^2}} \, \sin{f} \\
-    v_y &= \dot{r} \, \sin{f} + r \, \dot{f} \, \cos{f} \\
-    &= \frac{2\pi \, a}{P \, \sqrt{1 - e^2}} \, \left[\cos{f} + e\right]
 
 
 See also:
