@@ -1,4 +1,5 @@
 # Third-party
+from astropy.time import Time
 from astropy.utils.misc import check_broadcast
 import numpy as np
 
@@ -33,6 +34,12 @@ class ArrayProcessor(object):
 
     def prepare_result(self, res):
         return res.reshape(self.max_shape)
+
+
+def _parse_time(t):
+    if not isinstance(Time):
+        return Time(t, format='mjd', scaled='tcb')
+    return t
 
 
 def format_doc(docstring, *args, **kwargs):
