@@ -1,11 +1,18 @@
 # Third-party
-import astropy.time as at
+import astropy.coordinates as coord
+from astropy.coordinates.matrix_utilities import matrix_product
 import astropy.units as u
+import numpy as np
+from numpy import pi
 
 # Project
 from .core import rv_from_elements
 from . import elements as elem
 from .transforms import get_t0, a1_sini, mf
+from .anomaly import (eccentric_anomaly_from_mean_anomaly,
+                      true_anomaly_from_eccentric_anomaly)
+from .utils import _parse_time
+from .barycenter import Barycenter
 
 
 __all__ = ['KeplerOrbit']
@@ -13,7 +20,8 @@ __all__ = ['KeplerOrbit']
 
 class KeplerOrbit(object):
 
-    def __init__(self, elements=None, elements_type='kepler', **kwargs):
+    def __init__(self, elements=None, elements_type='kepler',
+                 barycenter=None, **kwargs):
         """
 
         Parameters
@@ -37,10 +45,100 @@ class KeplerOrbit(object):
             raise TypeError("'elements' must be an instance of an "
                             "OrbitalElements subclass.")
 
+        if barycenter is not None and not isinstance(barycenter, Barycenter):
+            raise TypeError("barycenter must be a twobody.Barycenter instance.")
+
         self.elements = elements
+        self.barycenter = barycenter
 
+    def unscaled_radial_velocity(self, time):
+        """Compute the ... TODO
 
+        Parameters
+        ----------
+        time : array_like, `astropy.time.Time`
+            Array of times as barycentric MJD values, or an Astropy
+            `~astropy.time.Time` object containing the times to evaluate at.
+        """
 
+        pass
+
+    def radial_velocity(self, time):
+        """Compute the ... TODO
+
+        Parameters
+        ----------
+        time : array_like, `astropy.time.Time`
+            Array of times as barycentric MJD values, or an Astropy
+            `~astropy.time.Time` object containing the times to evaluate at.
+        """
+
+        return self.K
+
+    def at_times(self, time):
+        """Compute the ... TODO
+
+        Parameters
+        ----------
+        time : array_like, `astropy.time.Time`
+            Array of times as barycentric MJD values, or an Astropy
+            `~astropy.time.Time` object containing the times to evaluate at.
+        """
+
+        # mean anomaly
+        with u.set_enabled_equivalencies(u.dimensionless_angles()):
+            dt = time - self.t0
+            M = 2*pi * dt / self.P - self.M0
+            # TODO: should I do this:
+            # M = coord.Angle(M.to(u.radian)).wrap_at(360*u.deg)
+            M = M.to(u.radian)
+
+        # eccentric anomaly
+        E = eccentric_anomaly_from_mean_anomaly(M, self.e) * u.rad
+
+        # true anomaly
+        f = true_anomaly_from_eccentric_anomaly(E, self.e) * u.rad
+
+        # distance from center of mass to orbiting body
+        r = self.a * (1. - self.e * np.cos(E))
+
+        # compute the orbit in the cartesian, orbital plane system (xyz):
+        x = r * np.cos(f)
+        y = r * np.sin(f)
+        z = np.zeros_like(x)
+
+        fac = 2*pi * self.a / self.P / np.sqrt(1 - self.e**2)
+        vx = -fac * np.sin(f)
+        vy = fac * (np.cos(f) + self.e)
+        vz = np.zeros_like(vx)
+
+        xyz = coord.CartesianRepresentation(x=x, y=y, z=z)
+        vxyz = coord.CartesianDifferential(d_x=vx, d_y=vy, d_z=vz)
+
+        # Construct rotation matrix to take the orbit from the orbital plane
+        # system (xyz) to the reference plane system (XYZ):
+        R1 = coord.matrix_utilities.rotation_matrix(self.omega, axis='z')
+        R2 = coord.matrix_utilities.rotation_matrix(self.i, axis='x')
+        R3 = coord.matrix_utilities.rotation_matrix(self.Omega, axis='z')
+        Rot = R3 @ R2 @ R1
+
+        # Rotate to the reference plane system
+        XYZ = coord.CartesianRepresentation(matrix_product(Rot, xyz.xyz))
+        VXYZ = coord.CartesianDifferential(matrix_product(Rot, vxyz.d_xyz))
+
+        XYZ = coord.CartesianRepresentation(XYZ)
+        VXYZ = coord.CartesianDifferential(VXYZ)
+
+        # Account for motion of the barycenter
+        dt = times - self.barycenter.t0
+
+        # TODO: transform
+        frame = self.barycenter.reference_plane_frame
+        bc = self.barycenter.frame.transform_to(reference_plane_frame)
+        v_bary = bc.cartesian.differentials['s']
+
+        XYZ = XYZ + bc.distance + v_bary * dt
+        VXYZ = coord.CartesianDifferential(VXYZ.d_xyz + v_bary.d_xyz)
 
 
     def t0(self, ref_mjd):
