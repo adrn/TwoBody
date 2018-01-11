@@ -1,7 +1,8 @@
 # Project
 from .wrap import (cy_mean_anomaly_from_eccentric_anomaly,
                    cy_true_anomaly_from_eccentric_anomaly,
-                   cy_eccentric_anomaly_from_true_anomaly)
+                   cy_eccentric_anomaly_from_true_anomaly,
+                   cy_eccentric_anomaly_from_mean_anomaly_Newton1)
 from .utils import ArrayProcessor
 
 __all__ = ['mean_anomaly_from_eccentric_anomaly',
@@ -30,8 +31,7 @@ def mean_anomaly_from_eccentric_anomaly(E, e):
     return p.prepare_result(cy_mean_anomaly_from_eccentric_anomaly(E, e))
 
 
-def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128,
-                                        method='Newton1'):
+def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128):
     """
     Parameters
     ----------
@@ -58,12 +58,10 @@ def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128,
     - Magic numbers ``tol`` and ``maxiter``
     """
 
-    func_name = "cy_eccentric_anomaly_from_mean_anomaly_{0}".format(method)
-    func = eval(func_name)
-
     p = ArrayProcessor(M, e)
     M, e = p.prepare_arrays()
-    return p.prepare_result(func(M, e, tol, maxiter))
+    return p.prepare_result(cy_eccentric_anomaly_from_mean_anomaly_Newton1(
+        M, e, tol, maxiter))
 
 
 def true_anomaly_from_eccentric_anomaly(E, e):
