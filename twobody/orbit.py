@@ -6,7 +6,6 @@ import numpy as np
 from numpy import pi
 
 # Project
-from .core import rv_from_elements
 from . import elements as elem
 from .transforms import get_t0, a1_sini, mf
 from .anomaly import (eccentric_anomaly_from_mean_anomaly,
