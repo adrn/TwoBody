@@ -72,7 +72,7 @@ class KeplerElements(OrbitalElements):
     def __init__(self, *, P=None, a=None,
                  e=0, omega=None, i=None, Omega=None,
                  M0=None, t0=None, units=None):
-        """Keplerian orbital elements.
+        """Keplerian orbital elements for a single orbit.
 
         Parameters
         ----------
@@ -162,37 +162,74 @@ class KeplerElements(OrbitalElements):
                 .format(self.P, self.a, self.e, self.omega, self.i, self.Omega))
 
 
-# TODO: be very explicit. Are we specifying the elements of one of the bodies,
-# or of the fictitious body? Or allow user to specify?
 class TwoBodyKeplerElements(KeplerElements):
 
     names = ['P', 'a', 'e', 'm1', 'm2', 'omega', 'i', 'Omega', 'M0']
 
-    @u.quantity_input(a=u.au, P=u.year, m1=u.Msun, m2=u.Msun,
+    @u.quantity_input(P=u.year, a=u.au, m1=u.Msun, m2=u.Msun,
                       omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
-    def __init__(self, *, a=None, P=None, m1=None, m2=None,
-                 e=None, omega=None, i=None, Omega=None,
+    def __init__(self, *, P=None, a=None, m1=None, m2=None,
+                 e=0, omega=None, i=None, Omega=None,
                  M0=None, t0=None, units=None):
+        """Keplerian orbital elements for a two-body system.
+
+        TODO: be very explicit. Are we specifying the elements of one of the
+        bodies, or of the fictitious body? Or allow user to specify?
+
+        Parameters
+        ----------
+        P : quantity_like [time]
+            Orbital period.
+        a : quantity_like [length]
+            Semi-major axis.
+        e : numeric (optional)
+            Orbital eccentricity. Default is circular, ``e=0``.
+        omega : quantity_like, `~astropy.coordinates.Angle` [angle]
+            Argument of pericenter.
+        i : quantity_like, `~astropy.coordinates.Angle` [angle]
+            Inclination of the orbit.
+        Omega : quantity_like, `~astropy.coordinates.Angle` [angle]
+            Longitude of the ascending node.
+        M0 : quantity_like, `~astropy.coordinates.Angle` [angle] (optional)
+            Mean anomaly at epoch ``t0``. Default is 0º if not specified.
+        t0 : numeric, `~astropy.coordinates.Time` (optional)
+            Reference epoch. Default is J2000 if not specified.
+        units : `~twobody.units.UnitSystem`, iterable (optional)
+            The unit system to represent quantities in. The default unit system
+            is accessible as `KeplerElements.default_units`.
+
+        """
 
         if m1 is None or m2 is None:
             raise ValueError("You must specify m1 and m2.")
 
+        if P is not None and a is not None:
+            raise ValueError("You can only specify one of period `P` or "
+                             "semi-major axis `a`.")
+
+        # TODO: I *think* that this means the orbit is for the fictitious particle?
         if P is None:
             P = a_m_to_P(a, m1+m2).to(u.day)
 
         if a is None:
             a = P_m_to_a(P, m1+m2).to(u.au)
 
+        self._m1 = m1
+        self._m2 = m2
+        self.m_tot = m1 + m2
+
+        # values are validated
         super().__init__(a=a, P=P,
                          e=e, omega=omega, i=i, Omega=omega,
                          M0=M0, t0=t0, units=units)
 
-        self.m1 = m1
-        self.m2 = m2
-        self.m_tot = self.m1 + self.m2
+    def get_body(self, num):
+        """Get a `twobody.KeplerElements` instance for the specified body.
 
-    def get_component(self, num):
-        """TODO
+        Parameters
+        ----------
+        num : str ('1' or '2')
+            Get the orbital elements of the primary `'1'` or secondary `'2'`.
         """
         num = str(num)
 
@@ -214,11 +251,11 @@ class TwoBodyKeplerElements(KeplerElements):
 
     @property
     def primary(self):
-        return self.get_component('1')
+        return self.get_body('1')
 
     @property
     def secondary(self):
-        return self.get_component('2')
+        return self.get_body('2')
 
     # Python builtins
     def __repr__(self):
