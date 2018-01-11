@@ -153,7 +153,8 @@ class KeplerElements(OrbitalElements):
     @property
     def m_f(self):
         """Binary mass function."""
-        return self.units.decompose(self.P * self.K**3 / (2*pi * G))
+        mf_circ = self.P * self.K**3 / (2*pi * G)
+        return self.units.decompose(mf_circ) * (1 - self.e**2)**1.5
 
     # Python builtins
     def __repr__(self):
@@ -209,10 +210,10 @@ class TwoBodyKeplerElements(KeplerElements):
 
         # TODO: I *think* that this means the orbit is for the fictitious particle?
         if P is None:
-            P = a_m_to_P(a, m1+m2).to(u.day)
+            P = a_m_to_P(a, m1+m2)
 
         if a is None:
-            a = P_m_to_a(P, m1+m2).to(u.au)
+            a = P_m_to_a(P, m1+m2)
 
         self._m1 = m1
         self._m2 = m2
@@ -256,6 +257,20 @@ class TwoBodyKeplerElements(KeplerElements):
     @property
     def secondary(self):
         return self.get_body('2')
+
+    @property
+    def K(self):
+        raise AttributeError('Velocity semi-amplitude is only defined for a '
+                             'particular component of a two-body system. Use '
+                             'the .get_body method to get the elements for a '
+                             'single component of the system, then call .K')
+
+    @property
+    def m_f(self):
+        raise AttributeError('The binary mass function is only defined for a '
+                             'particular component of a two-body system. Use '
+                             'the .get_body method to get the elements for a '
+                             'single component of the system, then call .m_f')
 
     # Python builtins
     def __repr__(self):

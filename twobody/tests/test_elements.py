@@ -1,6 +1,7 @@
 # Third-party
 from astropy.time import Time
 import astropy.units as u
+from astropy.tests.helper import quantity_allclose
 import numpy as np
 import pytest
 
@@ -51,3 +52,33 @@ def test_kepler():
         kw[k] = v
         with pytest.raises(ValueError):
             KeplerElements(**kw)
+
+def test_twobodykepler():
+
+    TwoBodyKeplerElements(P=10*u.day, e=0.5,
+                          m1=1*u.Msun, m2=5*u.Msun,
+                          omega=10*u.deg, i=20*u.deg, Omega=30*u.deg)
+    TwoBodyKeplerElements(a=10*u.au, e=0.5,
+                          m1=1*u.Msun, m2=5*u.Msun,
+                          omega=10*u.deg, i=20*u.deg, Omega=30*u.deg)
+
+    # check attributes
+    elems = TwoBodyKeplerElements(P=10*u.day, e=0.5,
+                                  m1=5*u.Msun, m2=1*u.Msun,
+                                  omega=10*u.deg, i=20*u.deg, Omega=30*u.deg)
+
+    with pytest.raises(AttributeError):
+        elems.K
+
+    with pytest.raises(AttributeError):
+        elems.m_f
+
+    elems.get_body('1')
+    elems.get_body('2')
+
+    elems.get_body(1)
+    elems.get_body(2)
+
+    with pytest.raises(ValueError):
+        elems.get_body('derp')
+
