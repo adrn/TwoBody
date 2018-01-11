@@ -225,12 +225,17 @@ class TwoBodyKeplerElements(KeplerElements):
                          M0=M0, t0=t0, units=units)
 
     def get_body(self, num):
-        """Get a `twobody.KeplerElements` instance for the specified body.
+        """Get the orbital elements for the specified body.
 
         Parameters
         ----------
         num : str ('1' or '2')
             Get the orbital elements of the primary `'1'` or secondary `'2'`.
+
+        Returns
+        -------
+        elements : `twobody.KeplerElements`
+
         """
         num = str(num)
 
@@ -252,10 +257,18 @@ class TwoBodyKeplerElements(KeplerElements):
 
     @property
     def primary(self):
+        """Shorthand for ``.get_body('1')``. Returns the orbital elements for
+        the primary body, which corresponds to ``m1`` (not the more massive of
+        the two).
+        """
         return self.get_body('1')
 
     @property
     def secondary(self):
+        """Shorthand for ``.get_body('2')``. Returns the orbital elements for
+        the secondary body, which corresponds to ``m2`` (not the less massive of
+        the two).
+        """
         return self.get_body('2')
 
     @property
