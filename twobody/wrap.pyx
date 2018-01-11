@@ -31,7 +31,7 @@ cdef extern from "src/twobody.h":
 
     void c_rv_from_elements(double *t, double *rv, int N_t,
                             double P, double K, double e, double omega,
-                            double phi0, double tol, int maxiter)
+                            double M0, double t0, double tol, int maxiter)
 
 __all__ = ['cy_mean_anomaly_from_eccentric_anomaly',
            'cy_eccentric_anomaly_from_mean_anomaly_Newton1',
@@ -127,7 +127,7 @@ cpdef cy_eccentric_anomaly_from_true_anomaly(
     return E
 
 cpdef cy_rv_from_elements(np.ndarray[double, mode="c", ndim=1] times,
-        double P, double K, double e, double omega, double phi0,
+        double P, double K, double e, double omega, double phi0, double t0,
         double anomaly_tol, int anomaly_maxiter):
 
     cdef:
@@ -136,7 +136,7 @@ cpdef cy_rv_from_elements(np.ndarray[double, mode="c", ndim=1] times,
         double[::1] rv = np.zeros(N_t)
 
     c_rv_from_elements(&times[0], &rv[0], N_t,
-                       P, K, e, omega, phi0,
+                       P, K, e, omega, phi0, t0,
                        anomaly_tol, anomaly_maxiter)
 
     return np.array(rv)

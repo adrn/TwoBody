@@ -12,4 +12,4 @@ extern double c_eccentric_anomaly_from_true_anomaly(double f, double e);
 
 extern void c_rv_from_elements(double *t, double *rv, int N_t,
                                double P, double K, double e, double omega,
-                               double phi0, double tol, int maxiter);
+                               double M0, double t0, double tol, int maxiter);
