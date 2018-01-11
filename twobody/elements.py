@@ -95,6 +95,8 @@ class KeplerElements(OrbitalElements):
                 .format(self.P, self.a, self.e, self.omega, self.i, self.Omega))
 
 
+# TODO: be very explicit. Are we specifying the elements of one of the bodies,
+# or of the fictitious body? Or allow user to specify?
 class TwoBodyKeplerElements(KeplerElements):
 
     @u.quantity_input(a=u.au, P=u.year, m1=u.Msun, m2=u.Msun,
