@@ -112,10 +112,10 @@ class KeplerOrbit(object):
             `~astropy.time.Time` object containing the times to evaluate at.
         """
 
-        # TODO: systemic velocity
+        # TODO: barycenter motion
         return self.K * self.unscaled_radial_velocity(time) # + self.barycenter.
 
-    def twobody_barycentric(self, time):
+    def reference_plane(self, time):
         """Compute the orbit at specified times in the two body barycentric
         frame aligned with the reference plane coordinate system (XYZ).
 
