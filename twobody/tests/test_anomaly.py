@@ -24,6 +24,7 @@ def test_mean_anomaly_from_eccentric_anomaly():
     M = mean_anomaly_from_eccentric_anomaly(Es, es)
     assert M.shape == Es.shape
 
+
 @pytest.mark.parametrize("method", ["Newton1", "Householder3"])
 def test_eccentric_anomaly_from_mean_anomaly(method):
     M_grid = np.linspace(0, 2*np.pi, N)
@@ -38,6 +39,7 @@ def test_eccentric_anomaly_from_mean_anomaly(method):
     # call with arrays
     E = eccentric_anomaly_from_mean_anomaly(Ms, es)
     assert E.shape == Ms.shape
+
 
 @pytest.mark.parametrize("method", ["Newton1", "Householder3"])
 def test_anomaly_roundtrip(method):
@@ -70,6 +72,7 @@ def test_anomaly_roundtrip(method):
     M = mean_anomaly_from_eccentric_anomaly(Es, es)
     E2 = eccentric_anomaly_from_mean_anomaly(M, es, **kw)
     assert np.allclose(Es, E2, atol=1E-14)
+
 
 def test_true_anomaly_roundtrip():
     # f -> E -> f
