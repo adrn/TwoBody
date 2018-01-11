@@ -7,32 +7,38 @@ from numpy import pi
 
 # Project
 from .transforms import a_m_to_P, P_m_to_a
+from .units import UnitSystem
 
 __all__ = ['OrbitalElements', 'KeplerElements', 'TwoBodyKeplerElements']
 
 
 class OrbitalElements:
 
-    def __init__(self):
-        pass
+    def __init__(self, units):
 
+        # make sure the units specified are a UnitSystem instance
+        if units is not None and not isinstance(units, UnitSystem):
+            units = UnitSystem(*units)
+
+        self.units = units
 
 class KeplerElements(OrbitalElements):
+
+    default_units = UnitSystem(u.au, u.day, u.Msun, u.degree, u.km/u.s)
 
     @u.quantity_input(a=u.au, P=u.year,
                       omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
     def __init__(self, *, a=None, P=None,
                  e=0, omega=None, i=None, Omega=None,
-                 M0=None, t0=None):
+                 M0=None, t0=None, units=None):
         """Class for representing Keplerian orbital elements.
 
         Parameters
         ----------
-        a : quantity_like [length]
-            Semi-major axis.
         P : quantity_like [time]
             Orbital period.
-
+        a : quantity_like [length] (optional)
+            Semi-major axis. If unspecified, computed orbits will be unscaled.
         e : numeric (optional)
             Orbital eccentricity. Default is circular, ``e=0``.
         omega : quantity_like, `~astropy.coordinates.Angle` [angle]
@@ -41,11 +47,14 @@ class KeplerElements(OrbitalElements):
             Inclination of the orbit.
         Omega : quantity_like, `~astropy.coordinates.Angle` [angle]
             Longitude of the ascending node.
-
         M0 : quantity_like, `~astropy.coordinates.Angle` [angle] (optional)
-            Mean anomaly at epoch ``t0``. Assumed to be 0º if not specified.
+            Mean anomaly at epoch ``t0``. Default is 0º if not specified.
         t0 : numeric, `~astropy.coordinates.Time` (optional)
-            Reference epoch. Assumed to be J2000 if not specified.
+            Reference epoch. Default is J2000 if not specified.
+        units : `~twobody.units.UnitSystem`, iterable (optional)
+            The unit system to represent quantities in. The default unit system
+            is accessible as `KeplerElements.default_units`.
+
         """
 
         if M0 is None:
@@ -60,18 +69,24 @@ class KeplerElements(OrbitalElements):
             # If a number is specified, assume it is Barycentric MJD
             t0 = Time(t0, format='mjd', scale='tcb')
 
-        # Now check that required things exist:
-        _required = ['P', 'e', 'omega', 'i', 'Omega']
+        # Default unit system:
+        if units is None:
+            units = self.default_units
+        super().__init__(units=units)
+
+        # Now check that required elements are defined:
+        _required = ['P', 'omega', 'i', 'Omega']
         for name in _required:
             if eval(name) is None:
-                raise ValueError("You must specify {0} or enough elements to "
-                                 "compute {0}.".format(name))
+                raise ValueError("You must specify {0}.".format(name))
 
-        # TODO: wrap angles
+        if i < 0*u.deg or i > 180*u.deg:
+            raise ValueError("Inclination must be between 0º and 180º, you "
+                             "passed in i={:.3f}".format(i.to(u.degree)))
 
         # Set object attributes
         self.a = a if a is not None else 1.
-        self.P = P if P is not None else 1.
+        self.P = P
         self.e = float(e)
         self.omega = omega
         self.i = i
