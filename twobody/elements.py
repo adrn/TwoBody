@@ -1,3 +1,6 @@
+# Standard library
+import abc
+
 # Third-party
 import astropy.coordinates as coord
 from astropy.constants import G
@@ -13,27 +16,63 @@ from .units import UnitSystem
 __all__ = ['OrbitalElements', 'KeplerElements', 'TwoBodyKeplerElements']
 
 
-class OrbitalElements:
+class ElementsMeta(abc.ABCMeta):
+
+    def __new__(mcls, name, bases, members):
+
+        if 'names' not in members:
+            raise ValueError('OrbitalElements subclasses must contain a '
+                             'defined class attribute "names" that specified '
+                             'the string names of the elements.')
+
+        for name_ in members['names']:
+            mcls.readonly_prop_factory(members, name_)
+
+        return super().__new__(mcls, name, bases, members)
+
+    @staticmethod
+    def readonly_prop_factory(members, attr_name):
+        def getter(self):
+            return self.units.decompose(getattr(self, '_' + attr_name))
+        members[attr_name] = property(getter)
+
+
+class OrbitalElements(metaclass=ElementsMeta):
+    """
+    Subclasses must define the class attribute ``.default_units`` to be a
+    ``UnitSystem`` instance.
+    """
+
+    names = []
 
     def __init__(self, units):
 
-        # make sure the units specified are a UnitSystem instance
-        if units is not None and not isinstance(units, UnitSystem):
+        # Make sure the units specified are a UnitSystem instance
+        if units is None:
+            units = self.default_units
+
+        elif units is not None and not isinstance(units, UnitSystem):
             units = UnitSystem(*units)
 
         self.units = units
+
+        # Now make sure all element name attributes have been set:
+        for name in self.names:
+            if not hasattr(self, '_'+name):
+                raise AttributeError('Invalid class definition!')
 
 
 class KeplerElements(OrbitalElements):
 
     default_units = UnitSystem(u.au, u.day, u.Msun, u.degree, u.km/u.s)
+    names = ['P', 'a', 'e', 'omega', 'i', 'Omega', 'M0']
 
     @u.quantity_input(P=u.year, a=u.au,
                       omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
     def __init__(self, *, P=None, a=None,
                  e=0, omega=None, i=None, Omega=None,
                  M0=None, t0=None, units=None):
-        """Class for representing Keplerian orbital elements.
+        """Keplerian orbital elements.
 
         Parameters
         ----------
@@ -71,11 +110,6 @@ class KeplerElements(OrbitalElements):
             # If a number is specified, assume it is Barycentric MJD
             t0 = Time(t0, format='mjd', scale='tcb')
 
-        # Default unit system:
-        if units is None:
-            units = self.default_units
-        super().__init__(units=units)
-
         # Now check that required elements are defined:
         _required = ['P', 'omega', 'i', 'Omega']
         for name in _required:
@@ -96,15 +130,19 @@ class KeplerElements(OrbitalElements):
             raise ValueError("Inclination `i` must be between 0º and 180º, you "
                              "passed in i={:.3f}".format(i.to(u.degree)))
 
-        # Set object attributes
-        self.a = a if a is not None else 1.
-        self.P = P
-        self.e = float(e)
-        self.omega = coord.Angle(omega).wrap_at(360*u.deg)
-        self.i = coord.Angle(i)
-        self.Omega = coord.Angle(Omega).wrap_at(360*u.deg)
-        self.M0 = coord.Angle(M0)
+        # Set object attributes, but make them read-only
+        self._a = a if a is not None else 1.*u.dimensionless_unscaled
+        self._P = P
+        self._e = float(e) * u.dimensionless_unscaled
+        self._omega = coord.Angle(omega).wrap_at(360*u.deg)
+        self._i = coord.Angle(i)
+        self._Omega = coord.Angle(Omega).wrap_at(360*u.deg)
+        self._M0 = coord.Angle(M0)
         self.t0 = t0
+
+        # Must happen at the end because it validates that all element names
+        # have been set properly:
+        super().__init__(units=units)
 
     @property
     def K(self):
@@ -127,6 +165,8 @@ class KeplerElements(OrbitalElements):
 # TODO: be very explicit. Are we specifying the elements of one of the bodies,
 # or of the fictitious body? Or allow user to specify?
 class TwoBodyKeplerElements(KeplerElements):
+
+    names = ['P', 'a', 'e', 'm1', 'm2', 'omega', 'i', 'Omega', 'M0']
 
     @u.quantity_input(a=u.au, P=u.year, m1=u.Msun, m2=u.Msun,
                       omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
