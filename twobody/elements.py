@@ -1,4 +1,5 @@
 # Third-party
+import astropy.coordinates as coord
 from astropy.constants import G
 from astropy.time import Time
 import astropy.units as u
@@ -22,13 +23,14 @@ class OrbitalElements:
 
         self.units = units
 
+
 class KeplerElements(OrbitalElements):
 
     default_units = UnitSystem(u.au, u.day, u.Msun, u.degree, u.km/u.s)
 
-    @u.quantity_input(a=u.au, P=u.year,
+    @u.quantity_input(P=u.year, a=u.au,
                       omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
-    def __init__(self, *, a=None, P=None,
+    def __init__(self, *, P=None, a=None,
                  e=0, omega=None, i=None, Omega=None,
                  M0=None, t0=None, units=None):
         """Class for representing Keplerian orbital elements.
@@ -80,29 +82,40 @@ class KeplerElements(OrbitalElements):
             if eval(name) is None:
                 raise ValueError("You must specify {0}.".format(name))
 
+        # Value validation:
+        if P < 0*u.day:
+            raise ValueError("Period `P` must be positive.")
+
+        if a is not None and a < 0*u.au:
+            raise ValueError("Semi-major axis `a` must be positive.")
+
+        if e < 0 or e >= 1:
+            raise ValueError("Eccentricity `e` must be: 0 <= e < 1")
+
         if i < 0*u.deg or i > 180*u.deg:
-            raise ValueError("Inclination must be between 0º and 180º, you "
+            raise ValueError("Inclination `i` must be between 0º and 180º, you "
                              "passed in i={:.3f}".format(i.to(u.degree)))
 
         # Set object attributes
         self.a = a if a is not None else 1.
         self.P = P
         self.e = float(e)
-        self.omega = omega
-        self.i = i
-        self.Omega = Omega
-        self.M0 = M0
+        self.omega = coord.Angle(omega).wrap_at(360*u.deg)
+        self.i = coord.Angle(i)
+        self.Omega = coord.Angle(Omega).wrap_at(360*u.deg)
+        self.M0 = coord.Angle(M0)
         self.t0 = t0
 
     @property
     def K(self):
         """Velocity semi-amplitude."""
-        return 2*pi * self.a * np.sin(self.i) / (self.P * np.sqrt(1-self.e**2))
+        K = 2*pi * self.a * np.sin(self.i) / (self.P * np.sqrt(1-self.e**2))
+        return self.units.decompose(K)
 
     @property
     def m_f(self):
         """Binary mass function."""
-        return self.P * self.K**3 / (2*pi * G)
+        return self.units.decompose(self.P * self.K**3 / (2*pi * G))
 
     # Python builtins
     def __repr__(self):
@@ -119,7 +132,7 @@ class TwoBodyKeplerElements(KeplerElements):
                       omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
     def __init__(self, *, a=None, P=None, m1=None, m2=None,
                  e=None, omega=None, i=None, Omega=None,
-                 M0=None, t0=None):
+                 M0=None, t0=None, units=None):
 
         if m1 is None or m2 is None:
             raise ValueError("You must specify m1 and m2.")
@@ -132,7 +145,7 @@ class TwoBodyKeplerElements(KeplerElements):
 
         super().__init__(a=a, P=P,
                          e=e, omega=omega, i=i, Omega=omega,
-                         M0=M0, t0=t0)
+                         M0=M0, t0=t0, units=units)
 
         self.m1 = m1
         self.m2 = m2
@@ -146,19 +159,17 @@ class TwoBodyKeplerElements(KeplerElements):
         if num == '1':
             a = self.m2 / self.m_tot * self.a
             omega = self.omega
-            Omega = self.Omega
 
         elif num == '2':
             a = self.m1 / self.m_tot * self.a
             omega = self.omega + np.pi*u.radian
-            Omega = self.Omega + np.pi*u.radian
 
         else:
             raise ValueError("Invalid input '{0}' - must be '1' or '2'"
                              .format(num))
 
         return KeplerElements(a=a, P=self.P,
-                              e=self.e, omega=omega, i=self.i, Omega=Omega,
+                              e=self.e, omega=omega, i=self.i, Omega=self.Omega,
                               M0=self.M0, t0=self.t0)
 
     @property
