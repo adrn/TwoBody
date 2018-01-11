@@ -6,8 +6,7 @@ import numpy as np
 from numpy import pi
 
 # Project
-from .transforms import a_m_to_P
-
+from .transforms import a_m_to_P, P_m_to_a
 
 __all__ = ['OrbitalElements', 'KeplerElements', 'TwoBodyKeplerElements']
 
@@ -17,13 +16,12 @@ class OrbitalElements:
     def __init__(self):
         pass
 
-
 class KeplerElements(OrbitalElements):
 
     @u.quantity_input(a=u.au, P=u.year,
                       omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
     def __init__(self, *, a=None, P=None,
-                 e=None, omega=None, i=None, Omega=None,
+                 e=0, omega=None, i=None, Omega=None,
                  M0=None, t0=None):
         """Class for representing Keplerian orbital elements.
 
@@ -34,8 +32,8 @@ class KeplerElements(OrbitalElements):
         P : quantity_like [time]
             Orbital period.
 
-        e : numeric
-            Orbital eccentricity.
+        e : numeric (optional)
+            Orbital eccentricity. Default is circular, ``e=0``.
         omega : quantity_like, `~astropy.coordinates.Angle` [angle]
             Argument of pericenter.
         i : quantity_like, `~astropy.coordinates.Angle` [angle]
@@ -71,8 +69,8 @@ class KeplerElements(OrbitalElements):
         # TODO: wrap angles
 
         # Set object attributes
-        self.a = a
-        self.P = P
+        self.a = a if a is not None else 1.
+        self.P = P if P is not None else 1.
         self.e = float(e)
         self.omega = omega
         self.i = i
@@ -90,6 +88,12 @@ class KeplerElements(OrbitalElements):
         """Binary mass function."""
         return self.P * self.K**3 / (2*pi * G)
 
+    # Python builtins
+    def __repr__(self):
+        return ("<KeplerElements [P={:.2f}, a={:.2f}, e={:.2f}, "
+                "ω={:.2f}, i={:.2f}, Ω={:.2f}]>"
+                .format(self.P, self.a, self.e, self.omega, self.i, self.Omega))
+
 
 class TwoBodyKeplerElements(KeplerElements):
 
@@ -103,7 +107,10 @@ class TwoBodyKeplerElements(KeplerElements):
             raise ValueError("You must specify m1 and m2.")
 
         if P is None:
-            P = a_m_to_P(a, m1+m2)
+            P = a_m_to_P(a, m1+m2).to(u.day)
+
+        if a is None:
+            a = P_m_to_a(P, m1+m2).to(u.au)
 
         super().__init__(a=a, P=P,
                          e=e, omega=omega, i=i, Omega=omega,
@@ -142,4 +149,12 @@ class TwoBodyKeplerElements(KeplerElements):
 
     @property
     def secondary(self):
-        return self.get_component('1')
+        return self.get_component('2')
+
+    # Python builtins
+    def __repr__(self):
+        return ("<TwoBodyKeplerElements [m1={:.2f}, m2={:.2f}, "
+                "P={:.2f}, a={:.2f}, e={:.2f}, "
+                "ω={:.2f}, i={:.2f}, Ω={:.2f}]>"
+                .format(self.m1, self.m2, self.P, self.a, self.e,
+                        self.omega, self.i, self.Omega))

@@ -8,12 +8,14 @@ from .wrap import (cy_mean_anomaly_from_eccentric_anomaly,
                    cy_eccentric_anomaly_from_true_anomaly)
 from .utils import ArrayProcessor
 
+
 __all__ = ['mean_anomaly_from_eccentric_anomaly',
            'eccentric_anomaly_from_mean_anomaly',
            'true_anomaly_from_eccentric_anomaly',
            'eccentric_anomaly_from_true_anomaly',
            'd_eccentric_anomaly_d_mean_anomaly',
            'd_true_anomaly_d_eccentric_anomaly']
+
 
 def mean_anomaly_from_eccentric_anomaly(E, e):
     """
@@ -33,6 +35,7 @@ def mean_anomaly_from_eccentric_anomaly(E, e):
     p = ArrayProcessor(E, e)
     E, e = p.prepare_arrays()
     return p.prepare_result(cy_mean_anomaly_from_eccentric_anomaly(E, e))
+
 
 def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128,
                                         method='Newton1'):
@@ -69,6 +72,7 @@ def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128,
     M, e = p.prepare_arrays()
     return p.prepare_result(func(M, e, tol, maxiter))
 
+
 def true_anomaly_from_eccentric_anomaly(E, e):
     """
     Parameters
@@ -87,6 +91,7 @@ def true_anomaly_from_eccentric_anomaly(E, e):
     E, e = p.prepare_arrays()
     return p.prepare_result(cy_true_anomaly_from_eccentric_anomaly(E, e))
 
+
 def eccentric_anomaly_from_true_anomaly(f, e):
     """
     Parameters
@@ -104,6 +109,7 @@ def eccentric_anomaly_from_true_anomaly(f, e):
     p = ArrayProcessor(f, e)
     E, e = p.prepare_arrays()
     return p.prepare_result(cy_eccentric_anomaly_from_true_anomaly(E, e))
+
 
 # Functions below aren't really used...
 def d_eccentric_anomaly_d_mean_anomaly(E, e):
