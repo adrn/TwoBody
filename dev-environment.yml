@@ -1,0 +1,16 @@
+name: twobody-dev
+
+channels:
+  - astropy
+
+dependencies:
+  - python=3
+  - astropy
+  - numpy
+  - matplotlib
+  - scipy
+  - cython
+  - pytest
+  - sphinx
+  - pip:
+    - pytest-astropy
