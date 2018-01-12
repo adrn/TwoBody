@@ -32,7 +32,7 @@ env:
         - ASTROPY_VERSION=stable
         - MAIN_CMD='python setup.py'
         - SETUP_CMD='test'
-        - PIP_DEPENDENCIES='alabaster'
+        - PIP_DEPENDENCIES=''
         - EVENT_TYPE='pull_request push'
 
 
@@ -58,7 +58,6 @@ env:
 
     matrix:
         # Make sure that egg_info works without dependencies
-        - PYTHON_VERSION=3.4 SETUP_CMD='egg_info'
         - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
         - PYTHON_VERSION=3.6 SETUP_CMD='egg_info'
 
@@ -93,8 +92,6 @@ matrix:
         # versions of Python, we can vary Python and Numpy versions at the same
         # time.
 
-        - os: linux
-          env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10
         - os: linux
           env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.11
 
