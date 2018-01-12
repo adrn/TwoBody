@@ -12,7 +12,7 @@ twobody Documentation
 
 
 Getting started
-===============
+---------------
 
 TODO: some examples
 
@@ -27,7 +27,7 @@ TODO: some examples
 
 
 For developers
-==============
+--------------
 
 .. toctree::
     :maxdepth: 2

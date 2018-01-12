@@ -102,6 +102,12 @@ release = package.__version__
 # variables set in the global configuration. The variables set in the
 # global configuration are listed below, commented out.
 
+# Please update these texts to match the name of your package.
+html_theme_options = {
+    'logotext1': 'Two',  # white,  semi-bold
+    'logotext2': 'Body',  # orange, light
+    'logotext3': ':docs'   # white,  light
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
@@ -112,7 +118,7 @@ release = package.__version__
 # name of a builtin theme or the name of a custom theme in html_theme_path.
 #html_theme = None
 
-html_theme = "alabaster"
+# html_theme = "alabaster"
 
 
 
@@ -176,3 +182,6 @@ if eval(setup_cfg.get('edit_on_github')):
 # -- Resolving issue number to links in changelog -----------------------------
 github_issues_url = 'https://github.com/{0}/issues/'.format(setup_cfg['github_project'])
 
+
+# Improve resolution of plots
+plot_formats = [('png', 512)]
