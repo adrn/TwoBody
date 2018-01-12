@@ -1,4 +1,5 @@
+*************
 Reference/API
-=============
+*************
 
 .. automodapi:: twobody
