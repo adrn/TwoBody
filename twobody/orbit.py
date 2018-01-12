@@ -263,7 +263,7 @@ class KeplerOrbit:
 
         if not isinstance(t, Time):
             t = Time(t, **t_kwargs)
-        rv = self.generate_rv_curve(t).to(rv_unit).value
+        rv = self.radial_velocity(t).to(rv_unit).value
 
         _t = getattr(getattr(t, t_kwargs['scale']), t_kwargs['format'])
         ax.plot(_t, rv, **style)
