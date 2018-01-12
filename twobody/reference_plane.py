@@ -11,6 +11,7 @@ __all__ = ['ReferencePlaneFrame']
 
 _cache = {}
 
+
 def _make_cls(framecls):
     """Analogous to
     astropy.coordinates.builtin_frames.skyoffset._make_skyoffset_cls -- see
@@ -50,7 +51,8 @@ def _make_cls(framecls):
         (ReferencePlaneFrame, framecls),
         {'__doc__': ReferencePlaneFrame.__doc__})
 
-    @frame_transform_graph.transform(FunctionTransform, _ReferencePlaneFramecls,
+    @frame_transform_graph.transform(FunctionTransform,
+                                     _ReferencePlaneFramecls,
                                      _ReferencePlaneFramecls)
     def referenceplane_to_referenceplane(from_coord, to_frame):
         """Transform between two reference plane frames."""
@@ -82,9 +84,8 @@ def _make_cls(framecls):
     @frame_transform_graph.transform(AffineTransform, framecls,
                                      _ReferencePlaneFramecls)
     def coord_to_referenceplane(from_coord, to_reference_plane):
-        """Convert a reference coordinate to an sky offset frame."""
+        """Convert a sky coordinate to a reference-plane frame."""
 
-        # use the forward transform, but just invert it
         M, offset = referenceplane_to_coord(to_reference_plane, from_coord)
         M = matrix_transpose(M)
         offset = (-offset).transform(M)
@@ -95,17 +96,24 @@ def _make_cls(framecls):
 
 
 class ReferencePlaneFrame(coord.BaseCoordinateFrame):
-    """TODO
+    """A coordinate frame aligned with the reference plane coordinates of a
+    Kepler orbit, centered on the barycenter or reference point of the orbit.
 
-    SkyOffsetFrames always have component names for spherical coordinates
-    of ``lon``/``lat``, *not* the component names for the frame of ``origin``.
+    See :ref:`celestial-reference-plane` for more information.
+
+    ``ReferencePlaneFrame`` objects always have generic component names for
+    spherical coordinates of ``lon``/``lat``, *not* the component names for the
+    frame of the ``origin``.
 
     Parameters
     ----------
     representation : `BaseRepresentation` or None
-        A representation object or None to have no data (or use the other keywords)
+        A representation object or None to have no data (or use the other
+        keywords).
     origin : `SkyCoord` or low-level coordinate object.
-        the coordinate which specifies the origin of this frame.
+        The coordinate which specifies the origin of this frame. This is
+        typically a sky position and a distance to the barycenter or reference
+        point of the orbit at a particular epoch.
 
     Notes
     -----
@@ -121,7 +129,7 @@ class ReferencePlaneFrame(coord.BaseCoordinateFrame):
         # We don't want to call this method if we've already set up
         # an skyoffset frame for this class.
         if not (issubclass(cls, ReferencePlaneFrame) and
-                    cls is not ReferencePlaneFrame):
+                cls is not ReferencePlaneFrame):
             # We get the origin argument, and handle it here.
             try:
                 origin_frame = kwargs['origin']
@@ -144,7 +152,7 @@ class ReferencePlaneFrame(coord.BaseCoordinateFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.origin is not None and not self.origin.has_data:
-            raise ValueError('The origin supplied to ReferencePlaneFrame has no'
-                             ' data.')
+            raise ValueError('The origin supplied to ReferencePlaneFrame has '
+                             'no data.')
         if self.has_data and hasattr(self.data, 'lon'):
             self.data.lon.wrap_angle = 180*u.deg
