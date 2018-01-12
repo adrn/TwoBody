@@ -61,35 +61,31 @@ def _make_cls(framecls):
         intermediate_to = intermediate_from.transform_to(to_frame.origin)
         return intermediate_to.transform_to(to_frame)
 
+    @frame_transform_graph.transform(AffineTransform, _ReferencePlaneFramecls,
+                                     framecls)
+    def referenceplane_to_coord(reference_plane_coord, to_frame):
+        """Convert a reference plane coordinate to the original system"""
+        origin = reference_plane_coord.origin.spherical
+        if origin.distance.unit == u.dimensionless_unscaled:
+            dist = 0. * u.pc
+        else:
+            dist = origin.distance
+        sun = coord.CartesianRepresentation([0, 0, 1] * dist)
+
+        mat1 = rotation_matrix(90*u.deg+origin.lat, 'y')
+        mat2 = rotation_matrix(-origin.lon, 'z')
+        M = matrix_product(mat2, mat1)
+
+        offset = (-sun).transform(M)
+        return M, offset
+
     @frame_transform_graph.transform(AffineTransform, framecls,
                                      _ReferencePlaneFramecls)
     def coord_to_referenceplane(from_coord, to_reference_plane):
         """Convert a reference coordinate to an sky offset frame."""
 
-        # Define rotation matrices along the position angle vector, and
-        # relative to the origin.
-        origin = to_reference_plane.origin.spherical
-        mat1 = rotation_matrix(origin.lon, 'z')
-        mat2 = rotation_matrix(-origin.lat, 'y')
-        M = matrix_product(mat1, mat2)
-
-        if origin.distance.unit == u.dimensionless_unscaled:
-            dist = 0. * u.pc
-        else:
-            dist = origin.distance
-        offset = coord.CartesianRepresentation(dist * [0,0,1.])
-        # TODO: velocity offset??
-
-        return M, offset
-
-    @frame_transform_graph.transform(AffineTransform, _ReferencePlaneFramecls,
-                                     framecls)
-    def referenceplane_to_coord(reference_plane_coord, to_frame):
-        """Convert an sky offset frame coordinate to the reference frame"""
-
         # use the forward transform, but just invert it
-        M, offset = coord_to_referenceplane(to_frame, reference_plane_coord)
-
+        M, offset = referenceplane_to_coord(to_reference_plane, from_coord)
         M = matrix_transpose(M)
         offset = (-offset).transform(M)
         return M, offset
