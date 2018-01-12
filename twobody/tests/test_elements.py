@@ -1,8 +1,6 @@
 # Third-party
 from astropy.time import Time
 import astropy.units as u
-from astropy.tests.helper import quantity_allclose
-import numpy as np
 import pytest
 
 # Project
@@ -22,7 +20,7 @@ def test_kepler():
 
     for kw in [kw1, {**kw1, **kw2}, {**kw1, **kw2, **kw3}, {**kw1, **kw3},
                {**kw1, **kw4}, {**kw1, **kw2, **kw4},
-               {**kw1, **kw2, **kw3, **kw4}]: # not meant to be fully exhaustive
+               {**kw1, **kw2, **kw3, **kw4}]:  # not meant to be exhaustive
         elems = KeplerElements(**kw)
 
         # Make sure this also works as arguments to KeplerOrbit
@@ -46,12 +44,13 @@ def test_kepler():
     assert elems.m_f.unit == u.kg
 
     # Expected failures:
-    bad_kws = [('P',-10*u.day), ('a',-10*u.au), ('e',1.5), ('i',-10*u.deg)]
-    for k,v in bad_kws:
+    bad_kws = [('P', -10*u.day), ('a', -10*u.au), ('e', 1.5), ('i', -10*u.deg)]
+    for k, v in bad_kws:
         kw = kw1.copy()
         kw[k] = v
         with pytest.raises(ValueError):
             KeplerElements(**kw)
+
 
 def test_twobodykepler():
 
@@ -81,4 +80,3 @@ def test_twobodykepler():
 
     with pytest.raises(ValueError):
         elems.get_body('derp')
-
