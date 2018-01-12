@@ -1,9 +1,10 @@
 # Standard library
 import abc
+import warnings
 
 # Third-party
 import astropy.coordinates as coord
-from astropy.constants import G
+from astropy.constants import G, c
 from astropy.time import Time
 import astropy.units as u
 import numpy as np
@@ -91,7 +92,9 @@ class KeplerElements(OrbitalElements):
         M0 : quantity_like, `~astropy.coordinates.Angle` [angle] (optional)
             Mean anomaly at epoch ``t0``. Default is 0º if not specified.
         t0 : numeric, `~astropy.coordinates.Time` (optional)
-            Reference epoch. Default is J2000 if not specified.
+            Reference epoch. If a number is passed in, it is assumed to be
+            a solar system barycentric modified julian date (BMJD). The default
+            is J2000 if not specified.
         units : `~twobody.units.UnitSystem`, iterable (optional)
             The unit system to represent quantities in. The default unit system
             is accessible as `KeplerElements.default_units`.
@@ -143,6 +146,14 @@ class KeplerElements(OrbitalElements):
         # Must happen at the end because it validates that all element names
         # have been set properly:
         super().__init__(units=units)
+
+        # Now we do a quick validation to make sure we're not relativistic...
+        _K_c = (self.K / c).decompose()
+        if _K_c > 1E-2:
+            warnings.warn('Velocity semiamplitude is large enough that '
+                          'relativistic effects are important: K/c = {:.2f} '
+                          'but are not currently accounted for in TwoBody'
+                          .format(_K_c), RuntimeWarning)
 
     @property
     def K(self):

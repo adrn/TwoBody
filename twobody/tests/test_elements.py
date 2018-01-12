@@ -1,6 +1,7 @@
 # Third-party
 from astropy.time import Time
 import astropy.units as u
+from astropy.tests.helper import catch_warnings
 import pytest
 
 # Project
@@ -50,6 +51,12 @@ def test_kepler():
         kw[k] = v
         with pytest.raises(ValueError):
             KeplerElements(**kw)
+
+    # Check warning
+    with catch_warnings() as w:
+        KeplerElements(P=1*u.day, a=5*u.au, e=0.,
+                       omega=10*u.deg, i=20*u.deg, Omega=30*u.deg)
+    assert len(w) > 0
 
 
 def test_twobodykepler():
