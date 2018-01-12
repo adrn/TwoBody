@@ -1,6 +1,6 @@
 # Third-party
 import astropy.coordinates as coord
-from astropy.coordinates.matrix_utilities import matrix_product
+from astropy.coordinates.matrix_utilities import matrix_product, rotation_matrix
 from astropy.time import Time
 import astropy.units as u
 import numpy as np
@@ -180,10 +180,10 @@ class KeplerOrbit:
 
         # Construct rotation matrix to take the orbit from the orbital plane
         # system (xyz) to the reference plane system (XYZ):
-        R1 = coord.matrix_utilities.rotation_matrix(-self.omega, axis='z')
-        R2 = coord.matrix_utilities.rotation_matrix(self.i, axis='x')
-        R3 = coord.matrix_utilities.rotation_matrix(self.Omega, axis='z')
-        Rot = R3 @ R2 @ R1
+        R1 = rotation_matrix(-self.omega, axis='z')
+        R2 = rotation_matrix(self.i, axis='x')
+        R3 = rotation_matrix(self.Omega, axis='z')
+        Rot = matrix_product(R3, R2, R1)
 
         # Rotate to the reference plane system
         XYZ = coord.CartesianRepresentation(matrix_product(Rot, xyz.xyz))
