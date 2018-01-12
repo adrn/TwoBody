@@ -5,7 +5,8 @@ import numpy as np
 
 __all__ = ['ArrayProcessor']
 
-class ArrayProcessor(object):
+
+class ArrayProcessor:
 
     def __init__(self, *arrs):
         self.arrs = [np.array(arr) for arr in arrs]
@@ -37,7 +38,7 @@ class ArrayProcessor(object):
 
 
 def _parse_time(t):
-    if not isinstance(Time):
+    if not isinstance(t, Time):
         return Time(t, format='mjd', scaled='tcb')
     return t
 
