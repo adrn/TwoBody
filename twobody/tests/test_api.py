@@ -38,8 +38,8 @@ assert elem.t0 == at.Time('J2000')
 # above), the following attributes are available for a KeplerElements instance:
 elem.P
 elem.a
-elem.m_f # "binary mass function"
-elem.K # velocity semi-amplitude
+elem.m_f  # "binary mass function"
+elem.K  # velocity semi-amplitude
 
 # To specify orbital elements of a binary or two-body system, use the
 # TwoBodyKeplerElements class. With this class, the orbital elements specified
@@ -53,8 +53,8 @@ elem = TwoBodyKeplerElements(m1=1*u.Msun, m2=2*u.Msun,
 
 # From this object, we can access the orbital elements of each component orbit
 # individually:
-elem1 = elem.get_component('1')
-elem2 = elem.get_component('2')
+elem1 = elem.get_body('1')
+elem2 = elem.get_body('2')
 # Or, using short-hand names:
 # assert elem.primary == elem.get_component('1')
 # assert elem.secondary == elem.get_component('2')
@@ -95,7 +95,7 @@ orb = KeplerOrbit(elem)
 orb = KeplerOrbit(a=1.5*u.au, e=0.5, P=1.*u.year,
                   omega=67*u.deg, i=21.*u.deg, Omega=33*u.deg,
                   M0=53*u.deg, t0=t0,
-                  elements_type='kepler') # this is default
+                  elements_type='kepler')  # this is default
 
 # Because 'kepler' is default, this will work:
 orb = KeplerOrbit(a=1.5*u.au, e=0.5, P=1.*u.year,
@@ -119,40 +119,4 @@ rv = K * orb.unscaled_radial_velocity(time)
 # Both of these work with astrometric orbits as well:
 orb = KeplerOrbit(elements=elem)
 icrs = orb.sky_position(time)
-icrs = amp * orb.unscaled_sky_position(time)
-
-# TODO:
-# Barycenter position and straight-line motion can be specified
-bc_frame = coord.ICRS(ra=180.84*u.deg, dec=-11*u.deg, distance=110*u.pc,
-                      pm_ra_cosdec=110*u.mas/u.yr, pm_dec=81*u.mas/u.yr,
-                      radial_velocity=-17*u.km/u.s)
-bc = Barycenter(bc_frame, t0=59117.012)
-orb = KeplerOrbit(elements=elem, barycenter=bc)
-
-# TODO: When barycenter motion specified, add v*(t-t0)?? to position - different t from
-# RV, different t0??
-# - Need 6 more parameters for Barycenter position and velocity at reference
-#   epoch - moves on straight line x1 = x0 + v1*t ; v1 = v0
-
-# We can also get out the full phase-space coordinates at each time as an
-# Astropy frame object:
-# TODO: better name for this?
-orbit6d = orb.six_d(time)
-
-# The returned orbit frame object is solar system barycentric but aligned with
-# the reference plane coordinates of the orbit. The Cartesian coordinates in
-# this frame therefore refer to the (capital) X, Y, Z system of
-# Murray & Correira 2010:
-XYZ = orbit6d.cartesian.xyz
-
-# Transform the orbit evaluated at the above times to the ICRS frame:
-icrs = orbit6d.transform_to(coord.ICRS)
-
-# Sky positions:
-icrs.ra, icrs.dec
-
-# Radial velocity:
-icrs.radial_velocity
-
-# Get a Cartesian representation of the orbit. Note: this is now ICRS Cartesian!
-icrs.cartesian
+icrs = 10*u.km/u.s * orb.unscaled_sky_position(time)
