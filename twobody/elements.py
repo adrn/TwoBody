@@ -63,17 +63,14 @@ class OrbitalElements(metaclass=ElementsMeta):
                 raise AttributeError('Invalid class definition!')
 
 
-class KeplerElements(OrbitalElements):
-
+class BaseKeplerElements(OrbitalElements):
     default_units = UnitSystem(u.au, u.day, u.Msun, u.degree, u.km/u.s)
     names = ['P', 'a', 'e', 'omega', 'i', 'Omega', 'M0']
 
-    @u.quantity_input(P=u.year, a=u.au,
-                      omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
-    def __init__(self, *, P=None, a=None,
+    def __init__(self, P=None, a=None,
                  e=0, omega=None, i=None, Omega=None,
                  M0=None, t0=None, units=None):
-        """Keplerian orbital elements for a single orbit.
+        """Base class for Keplerian orbital elements.
 
         Parameters
         ----------
@@ -147,13 +144,54 @@ class KeplerElements(OrbitalElements):
         # have been set properly:
         super().__init__(units=units)
 
-        # Now we do a quick validation to make sure we're not relativistic...
-        _K_c = (self.K / c).decompose()
-        if _K_c > 1E-2:
-            warnings.warn('Velocity semiamplitude is large enough that '
-                          'relativistic effects are important: K/c = {:.2f} '
-                          'but are not currently accounted for in TwoBody'
-                          .format(_K_c), RuntimeWarning)
+
+class KeplerElements(BaseKeplerElements):
+    names = ['P', 'a', 'e', 'omega', 'i', 'Omega', 'M0']
+
+    @u.quantity_input(P=u.year, a=u.au,
+                      omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
+    def __init__(self, *, P=None, a=None,
+                 e=0, omega=None, i=None, Omega=None,
+                 M0=None, t0=None, units=None):
+        """Keplerian orbital elements for a single orbit.
+
+        Parameters
+        ----------
+        P : quantity_like [time]
+            Orbital period.
+        a : quantity_like [length] (optional)
+            Semi-major axis. If unspecified, computed orbits will be unscaled.
+        e : numeric (optional)
+            Orbital eccentricity. Default is circular, ``e=0``.
+        omega : quantity_like, `~astropy.coordinates.Angle` [angle]
+            Argument of pericenter.
+        i : quantity_like, `~astropy.coordinates.Angle` [angle]
+            Inclination of the orbit.
+        Omega : quantity_like, `~astropy.coordinates.Angle` [angle]
+            Longitude of the ascending node.
+        M0 : quantity_like, `~astropy.coordinates.Angle` [angle] (optional)
+            Mean anomaly at epoch ``t0``. Default is 0º if not specified.
+        t0 : numeric, `~astropy.coordinates.Time` (optional)
+            Reference epoch. If a number is passed in, it is assumed to be
+            a solar system barycentric modified julian date (BMJD). The default
+            is J2000 if not specified.
+        units : `~twobody.units.UnitSystem`, iterable (optional)
+            The unit system to represent quantities in. The default unit system
+            is accessible as `KeplerElements.default_units`.
+
+        """
+
+        super().__init__(P=P, a=a, e=e, omega=omega, i=i, Omega=Omega,
+                         M0=M0, t0=t0, units=units)
+
+        if self.K.unit.physical_type == 'speed':
+            # Now we do a quick validation to make sure we're not relativistic...
+            _K_c = (self.K / c).decompose()
+            if _K_c > 1E-2:
+                warnings.warn('Velocity semiamplitude is large enough that '
+                              'relativistic effects are important: K/c = {:.2f}'
+                              ' but are not currently accounted for in TwoBody'
+                              .format(_K_c), RuntimeWarning)
 
     @property
     def K(self):
@@ -174,8 +212,7 @@ class KeplerElements(OrbitalElements):
                 .format(self.P, self.a, self.e, self.omega, self.i, self.Omega))
 
 
-class TwoBodyKeplerElements(KeplerElements):
-
+class TwoBodyKeplerElements(BaseKeplerElements):
     names = ['P', 'a', 'e', 'm1', 'm2', 'omega', 'i', 'Omega', 'M0']
 
     @u.quantity_input(P=u.year, a=u.au, m1=u.Msun, m2=u.Msun,
@@ -281,20 +318,6 @@ class TwoBodyKeplerElements(KeplerElements):
         the two).
         """
         return self.get_body('2')
-
-    @property
-    def K(self):
-        raise AttributeError('Velocity semi-amplitude is only defined for a '
-                             'particular component of a two-body system. Use '
-                             'the .get_body method to get the elements for a '
-                             'single component of the system, then call .K')
-
-    @property
-    def m_f(self):
-        raise AttributeError('The binary mass function is only defined for a '
-                             'particular component of a two-body system. Use '
-                             'the .get_body method to get the elements for a '
-                             'single component of the system, then call .m_f')
 
     # Python builtins
     def __repr__(self):
