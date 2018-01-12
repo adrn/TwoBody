@@ -2,7 +2,7 @@
 import astropy.units as u
 import astropy.coordinates as coord
 from astropy.coordinates import (frame_transform_graph, CoordinateAttribute,
-                                 FunctionTransform, AffineTransform)
+                                 FunctionTransform, AffineTransform, ICRS)
 from astropy.coordinates.matrix_utilities import (rotation_matrix,
                                                   matrix_product,
                                                   matrix_transpose)
@@ -57,6 +57,10 @@ def _make_cls(framecls):
     def referenceplane_to_referenceplane(from_coord, to_frame):
         """Transform between two reference plane frames."""
 
+        if not from_coord.origin.has_data or not to_frame.origin.has_data:
+            raise ValueError("Reference plane origin frame object must have "
+                             "data, i.e. it must have a position specified.")
+
         # This transform goes through the parent frames on each side.
         # from_frame -> from_frame.origin -> to_frame.origin -> to_frame
         intermediate_from = from_coord.transform_to(from_coord.origin)
@@ -67,6 +71,12 @@ def _make_cls(framecls):
                                      framecls)
     def referenceplane_to_coord(reference_plane_coord, to_frame):
         """Convert a reference plane coordinate to the original system"""
+
+        if (reference_plane_coord.origin is None or
+                not reference_plane_coord.origin.has_data):
+            raise ValueError("Reference plane origin frame object must have "
+                             "data, i.e. it must have a position specified.")
+
         origin = reference_plane_coord.origin.spherical
         if origin.distance.unit == u.dimensionless_unscaled:
             dist = 0. * u.pc
@@ -85,6 +95,11 @@ def _make_cls(framecls):
                                      _ReferencePlaneFramecls)
     def coord_to_referenceplane(from_coord, to_reference_plane):
         """Convert a sky coordinate to a reference-plane frame."""
+
+        if (to_reference_plane.origin is None or
+                not to_reference_plane.origin.has_data):
+            raise ValueError("Reference plane origin frame object must have "
+                             "data, i.e. it must have a position specified.")
 
         M, offset = referenceplane_to_coord(to_reference_plane, from_coord)
         M = matrix_transpose(M)
@@ -130,12 +145,11 @@ class ReferencePlaneFrame(coord.BaseCoordinateFrame):
         # an skyoffset frame for this class.
         if not (issubclass(cls, ReferencePlaneFrame) and
                 cls is not ReferencePlaneFrame):
-            # We get the origin argument, and handle it here.
-            try:
-                origin_frame = kwargs['origin']
-            except KeyError:
-                raise TypeError("Can't initialize an ReferencePlaneFrame "
-                                "without `origin` keyword.")
+            # We get the origin argument, and handle it here. Default is ICRS:
+            # the user might want to use arbitrary reference plane coordinates
+            # without every transforming them
+            origin_frame = kwargs.get('origin', ICRS())
+
             if hasattr(origin_frame, 'frame'):
                 origin_frame = origin_frame.frame
             newcls = _make_cls(origin_frame.__class__)

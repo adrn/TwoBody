@@ -3,6 +3,7 @@ import astropy.units as u
 import astropy.coordinates as coord
 from astropy.tests.helper import quantity_allclose
 import numpy as np
+import pytest
 
 # Project
 from ..reference_plane import ReferencePlaneFrame
@@ -44,3 +45,14 @@ def test_sanity():
         assert icrs.distance[0] > icrs.distance[1]
         assert quantity_allclose(icrs.ra[0], icrs.ra[1])
         assert quantity_allclose(icrs.dec[0], icrs.dec[1])
+
+
+def test_transform():
+    rep = coord.CartesianRepresentation(x=1, y=2, z=3, unit=u.pc)
+    ref_c1 = ReferencePlaneFrame(rep)
+
+    with pytest.raises(ValueError):
+        ref_c1.transform_to(coord.ICRS)
+
+    with pytest.raises(ValueError):
+        ref_c2 = ReferencePlaneFrame(rep, origin=coord.Galactic())
