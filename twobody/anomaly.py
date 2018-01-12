@@ -1,8 +1,16 @@
+# Standard library
+import inspect
+
+# Third-party
+import astropy.units as u
+from astropy.utils.decorators import wraps
+
 # Project
 from .wrap import (cy_mean_anomaly_from_eccentric_anomaly,
                    cy_true_anomaly_from_eccentric_anomaly,
                    cy_eccentric_anomaly_from_true_anomaly,
-                   cy_eccentric_anomaly_from_mean_anomaly_Newton1)
+                   cy_eccentric_anomaly_from_mean_anomaly_Newton1,
+                   cy_eccentric_anomaly_from_mean_anomaly_Householder3)
 from .utils import ArrayProcessor
 
 __all__ = ['mean_anomaly_from_eccentric_anomaly',
@@ -11,11 +19,32 @@ __all__ = ['mean_anomaly_from_eccentric_anomaly',
            'eccentric_anomaly_from_true_anomaly']
 
 
+def anomaly_wrapper(func):
+    """This is a decorator that processes the input (strips units, enforces that
+    it is a 1D array), executes the cython function on the cleaned input, then
+    returns the output angle in the same units and with the same shape as the
+    input.
+    """
+    sig = inspect.signature(func)
+
+    @wraps(func)
+    def function_wrapper(ang, e, *args, **kwargs):
+        in_unit = ang.unit
+        p = ArrayProcessor(ang.to(u.radian).value, e)
+        ang, e = p.prepare_arrays()
+        res = p.prepare_result(func(ang, e, *args, **kwargs))
+        return (res * u.radian).to(in_unit)
+
+    return function_wrapper
+
+
+@u.quantity_input(E=u.radian)
+@anomaly_wrapper
 def mean_anomaly_from_eccentric_anomaly(E, e):
     """
     Parameters
     ----------
-    E : numeric, array_like [radian]
+    E : quantity_like [angle]
         Eccentric anomaly.
     e : numeric, array_like
         Eccentricity.
@@ -25,17 +54,17 @@ def mean_anomaly_from_eccentric_anomaly(E, e):
     M : numeric, array_like [radian]
         Mean anomaly.
     """
-    # TODO: in principle, this could be a decorator
-    p = ArrayProcessor(E, e)
-    E, e = p.prepare_arrays()
-    return p.prepare_result(cy_mean_anomaly_from_eccentric_anomaly(E, e))
+    return cy_mean_anomaly_from_eccentric_anomaly(E, e)
 
 
-def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128):
+@u.quantity_input(M=u.radian)
+@anomaly_wrapper
+def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128,
+                                        method='Newton1'):
     """
     Parameters
     ----------
-    M : numeric, array_like [radian]
+    M : quantity_like [angle]
         Mean anomaly.
     e : numeric
         Eccentricity.
@@ -46,7 +75,7 @@ def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128):
         anomaly.
     method : str, optional
         The method to use for iterative root-finding for the eccentric anomaly.
-        Options are: ``'Newton1'``.
+        Options are: ``'Newton1'`` and ``'Householder3'``.
 
     Returns
     -------
@@ -57,18 +86,17 @@ def eccentric_anomaly_from_mean_anomaly(M, e, tol=1E-10, maxiter=128):
     ------
     - Magic numbers ``tol`` and ``maxiter``
     """
-
-    p = ArrayProcessor(M, e)
-    M, e = p.prepare_arrays()
-    return p.prepare_result(cy_eccentric_anomaly_from_mean_anomaly_Newton1(
-        M, e, tol, maxiter))
+    func = eval('cy_eccentric_anomaly_from_mean_anomaly_{0}'.format(method))
+    return func(M, e, tol, maxiter)
 
 
+@u.quantity_input(E=u.radian)
+@anomaly_wrapper
 def true_anomaly_from_eccentric_anomaly(E, e):
     """
     Parameters
     ----------
-    E : numeric, array_like [radian]
+    E : quantity_like [angle]
         Eccentric anomaly.
     e : numeric, array_like
         Eccentricity.
@@ -78,16 +106,16 @@ def true_anomaly_from_eccentric_anomaly(E, e):
     f : numeric [radian]
         True anomaly.
     """
-    p = ArrayProcessor(E, e)
-    E, e = p.prepare_arrays()
-    return p.prepare_result(cy_true_anomaly_from_eccentric_anomaly(E, e))
+    return cy_true_anomaly_from_eccentric_anomaly(E, e)
 
 
+@u.quantity_input(f=u.radian)
+@anomaly_wrapper
 def eccentric_anomaly_from_true_anomaly(f, e):
     """
     Parameters
     ----------
-    f : numeric, array_like [radian]
+    f : quantity_like [angle]
         True anomaly.
     e : numeric, array_like
         Eccentricity.
@@ -97,6 +125,4 @@ def eccentric_anomaly_from_true_anomaly(f, e):
     E : numeric [radian]
         Eccentric anomaly.
     """
-    p = ArrayProcessor(f, e)
-    E, e = p.prepare_arrays()
-    return p.prepare_result(cy_eccentric_anomaly_from_true_anomaly(E, e))
+    return cy_eccentric_anomaly_from_true_anomaly(f, e)

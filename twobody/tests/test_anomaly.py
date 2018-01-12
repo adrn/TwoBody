@@ -1,4 +1,6 @@
 # Third-party
+from astropy.tests.helper import quantity_allclose
+import astropy.units as u
 import numpy as np
 import pytest
 
@@ -10,6 +12,7 @@ from ..anomaly import (mean_anomaly_from_eccentric_anomaly,
 
 N = 16
 
+
 def test_mean_anomaly_from_eccentric_anomaly():
     E_grid = np.linspace(0, 2*np.pi, N)
     e_grid = np.linspace(0, 1, N)
@@ -17,11 +20,11 @@ def test_mean_anomaly_from_eccentric_anomaly():
 
     # call with float
     for E, e in zip(Es, es):
-        M = mean_anomaly_from_eccentric_anomaly(E, e)
+        M = mean_anomaly_from_eccentric_anomaly(E*u.rad, e)
         assert M.shape == ()
 
     # call with arrays
-    M = mean_anomaly_from_eccentric_anomaly(Es, es)
+    M = mean_anomaly_from_eccentric_anomaly(Es*u.rad, es)
     assert M.shape == Es.shape
 
 
@@ -33,11 +36,11 @@ def test_eccentric_anomaly_from_mean_anomaly(method):
 
     # call with float
     for M, e in zip(Ms, es):
-        E = eccentric_anomaly_from_mean_anomaly(M, e, method=method)
+        E = eccentric_anomaly_from_mean_anomaly(M*u.rad, e, method=method)
         assert E.shape == ()
 
     # call with arrays
-    E = eccentric_anomaly_from_mean_anomaly(Ms, es)
+    E = eccentric_anomaly_from_mean_anomaly(Ms*u.rad, es)
     assert E.shape == Ms.shape
 
 
@@ -47,48 +50,48 @@ def test_anomaly_roundtrip(method):
 
     # M -> E -> M
     M_grid = np.linspace(0, 2*np.pi, N)
-    e_grid = np.linspace(0, 1 - 1E-9, N) # MAGIC NUMBER: 1E-9
+    e_grid = np.linspace(0, 1 - 1E-9, N)  # MAGIC NUMBER: 1E-9
     Ms, es = [x.ravel() for x in np.meshgrid(M_grid, e_grid)]
 
     for M, e in zip(Ms, es):
-        E = eccentric_anomaly_from_mean_anomaly(M, e, **kw)
+        E = eccentric_anomaly_from_mean_anomaly(M*u.rad, e, **kw)
         M2 = mean_anomaly_from_eccentric_anomaly(E, e)
-        assert np.allclose(M, M2, atol=1E-14)
+        assert quantity_allclose(M*u.rad, M2, atol=1E-14*u.rad)
 
-    E = eccentric_anomaly_from_mean_anomaly(Ms, es, **kw)
+    E = eccentric_anomaly_from_mean_anomaly(Ms*u.rad, es, **kw)
     M2 = mean_anomaly_from_eccentric_anomaly(E, es)
-    assert np.allclose(Ms, M2, atol=1E-14)
+    assert quantity_allclose(Ms*u.rad, M2, atol=1E-14*u.rad)
 
     # E -> M -> E
     E_grid = np.linspace(0, 2*np.pi, N)
-    e_grid = np.linspace(0, 1 - 1E-9, N) # MAGIC NUMBER: 1E-9
+    e_grid = np.linspace(0, 1 - 1E-9, N)  # MAGIC NUMBER: 1E-9
     Es, es = [x.ravel() for x in np.meshgrid(E_grid, e_grid)]
 
     for E, e in zip(Es, es):
-        M = mean_anomaly_from_eccentric_anomaly(E, e)
+        M = mean_anomaly_from_eccentric_anomaly(E*u.rad, e)
         E2 = eccentric_anomaly_from_mean_anomaly(M, e, **kw)
-        assert np.allclose(E, E2, atol=1E-14)
+        assert quantity_allclose(E*u.rad, E2, atol=1E-14*u.rad)
 
-    M = mean_anomaly_from_eccentric_anomaly(Es, es)
+    M = mean_anomaly_from_eccentric_anomaly(Es*u.rad, es)
     E2 = eccentric_anomaly_from_mean_anomaly(M, es, **kw)
-    assert np.allclose(Es, E2, atol=1E-14)
+    assert quantity_allclose(Es*u.rad, E2, atol=1E-14*u.rad)
 
 
 def test_true_anomaly_roundtrip():
     # f -> E -> f
     f_grid = np.linspace(0, 2*np.pi, N)
-    e_grid = np.linspace(0, 1 - 1E-9, N) # MAGIC NUMBER: 1E-9
+    e_grid = np.linspace(0, 1 - 1E-9, N)  # MAGIC NUMBER: 1E-9
     fs, es = [x.ravel() for x in np.meshgrid(f_grid, e_grid)]
 
-    E = eccentric_anomaly_from_true_anomaly(fs, es)
+    E = eccentric_anomaly_from_true_anomaly(fs*u.rad, es)
     f2 = true_anomaly_from_eccentric_anomaly(E, es)
     assert np.allclose(np.cos(fs), np.cos(f2), atol=1E-9)
 
     # E -> f -> E
     E_grid = np.linspace(0, 2*np.pi, N)
-    e_grid = np.linspace(0, 1 - 1E-9, N) # MAGIC NUMBER: 1E-9
+    e_grid = np.linspace(0, 1 - 1E-9, N)  # MAGIC NUMBER: 1E-9
     Es, es = [x.ravel() for x in np.meshgrid(E_grid, e_grid)]
 
-    f = true_anomaly_from_eccentric_anomaly(Es, es)
+    f = true_anomaly_from_eccentric_anomaly(Es*u.rad, es)
     E2 = eccentric_anomaly_from_true_anomaly(f, es)
     assert np.allclose(np.cos(Es), np.cos(E2), atol=1E-9)
