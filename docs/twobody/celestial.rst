@@ -93,6 +93,8 @@ velocity of the body in the orbital plane coordinates is given by:
     v_y &= \dot{r} \, \sin{f} + r \, \dot{f} \, \cos{f} \\
     &= \frac{2\pi \, a}{P \, \sqrt{1 - e^2}} \, \left[\cos{f} + e\right]
 
+.. _celestial-reference-plane::
+
 Observer or reference plane coordinates
 =======================================
 
@@ -105,7 +107,7 @@ and another reference coordinate system :math:`(X, Y, Z)`. In the new
 at a point on the celestial sphere as the reference plane, with the observer
 sitting along the positive :math:`Z` axis (see Figure 7 in `Murray and Correia
 (2010) <https://arxiv.org/pdf/1009.1738.pdf>`_). At a given tangent point, the
-:math:`\hat{Y}` direction is aligned with North, and :math:`\hat{X}` with the
+:math:`\hat{X}` direction is aligned with North, and :math:`\hat{Y}` with the
 East direction of the celestial coordinates used.
 
 The angles that define the rotation from :math:`(x, y, z)` to :math:`(X, Y, Z)`
