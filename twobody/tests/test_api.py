@@ -115,8 +115,3 @@ orb = KeplerOrbit(P=1.*u.year, e=0.5,
                   M0=53*u.deg, t0=t0)
 K = 10 * u.m/u.s
 rv = K * orb.unscaled_radial_velocity(time)
-
-# Both of these work with astrometric orbits as well:
-orb = KeplerOrbit(elements=elem)
-icrs = orb.sky_position(time)
-icrs = 10*u.km/u.s * orb.unscaled_sky_position(time)

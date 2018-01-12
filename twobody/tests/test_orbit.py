@@ -42,7 +42,7 @@ def test_radial_velocity():
     # Compare the short-circuit RV to the full calculation
 
     rnd = np.random.RandomState(seed=42)
-    n_iter = 128
+    n_iter = 32
 
     bc_kw = dict(ra=210.413231*u.deg,
                  dec=-61.3412*u.deg,
@@ -97,13 +97,13 @@ def test_plotting():
 
     # plotting
     for _t in [mjd, t]:
-        orbit.plot(_t)
-        orbit.plot(_t, t_kwargs=dict(format='jd', scale='utc'))
+        orbit.plot_rv(_t)
+        orbit.plot_rv(_t, t_kwargs=dict(format='jd', scale='utc'))
 
     fig,ax = plt.subplots(1,1)
-    orbit.plot(t=t, ax=ax, plot_kwargs=dict(color='#de2d26'))
+    orbit.plot_rv(t=t, ax=ax, plot_kwargs=dict(color='#de2d26'))
 
     fig,ax = plt.subplots(1,1)
-    orbit.plot(t=mjd, ax=ax)
+    orbit.plot_rv(t=mjd, ax=ax)
 
     plt.close('all')
