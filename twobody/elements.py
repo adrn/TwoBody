@@ -155,6 +155,9 @@ class KeplerElements(BaseKeplerElements):
                  M0=None, t0=None, units=None):
         """Keplerian orbital elements for a single orbit.
 
+        The elements are assumed to be relative to an inertial frame, typically
+        the barycenter of a two-body system.
+
         Parameters
         ----------
         P : quantity_like [time]

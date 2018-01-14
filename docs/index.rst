@@ -18,6 +18,7 @@ Getting started
     >>> import astropy.units as u
     >>> from twobody import KeplerOrbit
     >>> import matplotlib.pyplot as plt
+    >>> import numpy as np
     >>> orb = KeplerOrbit(P=1.5*u.year, a=1.8*u.au, e=0.67,
     ...                   omega=17.14*u.deg, i=65*u.deg, Omega=5*u.deg,
     ...                   M0=0*u.deg, t0=Time('J2015.0'))
@@ -33,6 +34,7 @@ Getting started
     import astropy.units as u
     from twobody import KeplerOrbit
     import matplotlib.pyplot as plt
+    import numpy as np
     orb = KeplerOrbit(P=1.5*u.year, a=1.8*u.au, e=0.67,
                       omega=17.14*u.deg, i=65*u.deg, Omega=5*u.deg,
                       M0=0*u.deg, t0=Time('J2015.0'))

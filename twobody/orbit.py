@@ -22,15 +22,70 @@ class KeplerOrbit:
 
     def __init__(self, elements=None, elements_type='kepler',
                  barycenter=None, **kwargs):
-        """
+        """Represents a bound Kepler orbit.
 
         Parameters
         ----------
+        elements : `twobody.OrbitalElements` subclass instance
+            Either pass in an ``OrbitalElements`` object, e.g., an instance of
+            `twobody.KeplerElements`, or pass in the element names themselves.
+            If the latter, anything passed in as kwargs gets passed to the
+            elements class specified by ``elements_type``. The element names
+            for the default ``elements_type`` are included below for
+            convenience.
+        elements_type : str (optional)
+            Ignore if you pass in an instantiated ``OrbitalElements`` object.
+            This argument controls the class that the ``kwargs`` are passed to.
+            The default is ``'kepler'``, meaning all keyword arguments get
+            passed to the `twobody.KeplerElements` class.
+        barycenter : `twobody.Barycenter` (optional)
+            Parameters that control specification of the barycenter of the
+            orbit.
+
+        Kepler elements
+        ---------------
+        P : quantity_like [time]
+            Orbital period.
+        a : quantity_like [length] (optional)
+            Semi-major axis. If unspecified, computed orbits will be unscaled.
+        e : numeric (optional)
+            Orbital eccentricity. Default is circular, ``e=0``.
+        omega : quantity_like, `~astropy.coordinates.Angle` [angle]
+            Argument of pericenter.
+        i : quantity_like, `~astropy.coordinates.Angle` [angle]
+            Inclination of the orbit.
+        Omega : quantity_like, `~astropy.coordinates.Angle` [angle]
+            Longitude of the ascending node.
+        M0 : quantity_like, `~astropy.coordinates.Angle` [angle] (optional)
+            Mean anomaly at epoch ``t0``. Default is 0º if not specified.
+        t0 : numeric, `~astropy.coordinates.Time` (optional)
+            Reference epoch. If a number is passed in, it is assumed to be
+            a solar system barycentric modified julian date (BMJD). The default
+            is J2000 if not specified.
+        units : `~twobody.units.UnitSystem`, iterable (optional)
+            The unit system to represent quantities in. The default unit system
+            is accessible as `KeplerElements.default_units`.
 
         Examples
         --------
+        As described above, you can either create an ``Elements`` object and
+        then pass this to ``KeplerOrbit``, e.g.,
 
+            >>> import astropy.units as u
+            >>> from astropy.time import Time
+            >>> from twobody import KeplerElements
+            >>> t0 = Time(2459812.641, format='jd') # reference epoch
+            >>> elem = KeplerElements(a=1.5*u.au, e=0.5, P=1.*u.year,
+            ...                       omega=67*u.deg, i=21.*u.deg,
+            ...                       Omega=33*u.deg, M0=53*u.deg, t0=t0)
+            >>> orb = KeplerOrbit(elem)
 
+        Or, you can pass in the element names as arguments to the
+        ``KeplerOrbit`` class:
+
+            >>> orb = KeplerOrbit(a=1.5*u.au, e=0.5, P=1.*u.year,
+            ...                   omega=67*u.deg, i=21.*u.deg, Omega=33*u.deg,
+            ...                   M0=53*u.deg, t0=t0)
         """
 
         if elements is None:
@@ -136,7 +191,7 @@ class KeplerOrbit:
         if self.barycenter is not None:
             rv0 = self.barycenter.origin.radial_velocity
         else:
-            rv0 = 0 * u.km/u.s
+            rv0 = 0 * u.km / u.s
 
         return self.K * self.unscaled_radial_velocity(time) + rv0
 
@@ -248,7 +303,7 @@ class KeplerOrbit:
             ax = plt.gca()
 
         if rv_unit is None:
-            rv_unit = u.km/u.s
+            rv_unit = u.km / u.s
 
         if t_kwargs is None:
             t_kwargs = dict(format='mjd', scale='tcb')
