@@ -187,9 +187,9 @@ github_issues_url = 'https://github.com/{0}/issues/'.format(setup_cfg['github_pr
 plot_formats = [('png', 512)]
 
 plot_rcparams = dict()
-plot_rcparams['axes.titlesize'] = 26
-plot_rcparams['axes.labelsize'] = 22
-plot_rcparams['xtick.labelsize'] = 18
-plot_rcparams['ytick.labelsize'] = 18
+plot_rcparams['axes.titlesize'] = 20
+plot_rcparams['axes.labelsize'] = 18
+plot_rcparams['xtick.labelsize'] = 14
+plot_rcparams['ytick.labelsize'] = 14
 plot_rcparams['savefig.bbox'] = 'tight'
 plot_apply_rcparams = True
