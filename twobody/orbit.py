@@ -130,11 +130,11 @@ class KeplerOrbit:
             `~astropy.time.Time` object containing the times to evaluate at.
         anomaly_tol : numeric (optional)
             Tolerance passed to
-            `~twobody.celestial.eccentric_anomaly_from_mean_anomaly` for solving
+            `~twobody.eccentric_anomaly_from_mean_anomaly` for solving
             for the eccentric anomaly. See default value in that function.
         anomaly_maxiter : numeric (optional)
             Maximum number of iterations to use in
-            `~twobody.celestial.eccentric_anomaly_from_mean_anomaly` for solving
+            `~twobody.eccentric_anomaly_from_mean_anomaly` for solving
             for the eccentric anomaly. See default value in that function.
 
         Returns
@@ -180,11 +180,11 @@ class KeplerOrbit:
             `~astropy.time.Time` object containing the times to evaluate at.
         anomaly_tol : numeric (optional)
             Tolerance passed to
-            `~twobody.celestial.eccentric_anomaly_from_mean_anomaly` for solving
+            `~twobody.eccentric_anomaly_from_mean_anomaly` for solving
             for the eccentric anomaly. See default value in that function.
         anomaly_maxiter : numeric (optional)
             Maximum number of iterations to use in
-            `~twobody.celestial.eccentric_anomaly_from_mean_anomaly` for solving
+            `~twobody.eccentric_anomaly_from_mean_anomaly` for solving
             for the eccentric anomaly. See default value in that function.
         """
 

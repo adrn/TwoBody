@@ -1,45 +1,25 @@
 # Third-party
-from astropy.time import Time
 import astropy.units as u
 from astropy.tests.helper import quantity_allclose
 import numpy as np
 
 # Project
-from ..transforms import get_t0, get_phi0, a1_sini, mf, mf_a1_sini_ecc_to_P_K
-
-def test_get_t0():
-    ref_mjd = 7025*8.
-    t0 = get_t0(0., 8.*u.day, ref_mjd)
-    assert np.allclose(ref_mjd, t0.tcb.mjd)
-
-    t0 = get_t0(0.*u.degree, 8.*u.day, ref_mjd)
-    assert np.allclose(ref_mjd, t0.tcb.mjd)
+from ..transforms import a_P_to_m, a_m_to_P, P_m_to_a
 
 
-def test_get_phi0():
+def test_roundtrip_Pma():
 
-    P = 4.183*u.day
-    mjd = 57243.25235
-    t0 = Time(mjd, scale='tcb', format='mjd')
+    rnd = np.random.RandomState(seed=42)
 
-    phi0_1 = get_phi0(mjd, P)
-    assert phi0_1.unit == u.radian
+    for i in range(128):
+        P = 10 ** rnd.uniform(0, 3) * u.day
+        m = np.abs(rnd.normal(1., 0.5)) * u.Msun
+        a = P_m_to_a(P, m)
 
-    phi0_2 = get_phi0(t0, P)
-    assert phi0_2.unit == u.radian
+        m2 = a_P_to_m(a, P)
+        P2 = a_m_to_P(a, m2)
+        a2 = P_m_to_a(P2, m2)
 
-    assert np.allclose(phi0_1.value, phi0_2.value)
-
-def test_roundtrip_asini_mf():
-
-    for i in range(32):
-        P = np.random.uniform(1., 100.) * u.day
-        K = np.random.uniform(1., 100.) * u.km/u.s
-        ecc = np.random.uniform()
-
-        asini = a1_sini(P, K, ecc)
-        massf = mf(P, K, ecc)
-        P2,K2 = mf_a1_sini_ecc_to_P_K(massf, asini, ecc)
-
+        assert quantity_allclose(a, a2)
+        assert quantity_allclose(m, m2)
         assert quantity_allclose(P, P2)
-        assert quantity_allclose(K, K2)
