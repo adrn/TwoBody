@@ -17,6 +17,12 @@ from .units import UnitSystem
 __all__ = ['OrbitalElements', 'KeplerElements', 'TwoBodyKeplerElements']
 
 
+def _parse_time(t):
+    if not isinstance(t, Time):
+        return Time(t, format='mjd', scale='tcb')
+    return t
+
+
 class ElementsMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, members):
@@ -106,9 +112,7 @@ class BaseKeplerElements(OrbitalElements):
             # Default reference epoch is J2000
             t0 = Time('J2000')
 
-        if not isinstance(t0, Time):
-            # If a number is specified, assume it is Barycentric MJD
-            t0 = Time(t0, format='mjd', scale='tcb')
+        t0 = _parse_time(t0)
 
         # Now check that required elements are defined:
         _required = ['P', 'omega', 'i', 'Omega']

@@ -37,12 +37,6 @@ class ArrayProcessor:
         return res.reshape(self.max_shape)
 
 
-def _parse_time(t):
-    if not isinstance(t, Time):
-        return Time(t, format='mjd', scale='tcb')
-    return t
-
-
 def format_doc(docstring, *args, **kwargs):
     """
     A modified version of `astropy.utils.decorators.format_doc` that first

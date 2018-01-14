@@ -7,7 +7,7 @@ from astropy.time import Time
 import astropy.units as u
 
 # Project
-from .utils import _parse_time
+from .elements import _parse_time
 
 __all__ = ['Barycenter']
 
