@@ -252,6 +252,7 @@ class KeplerOrbit:
 
     def icrs(self, time):
         """
+        TODO: docstring
         """
         rp = self.reference_plane(time)
 
@@ -272,7 +273,7 @@ class KeplerOrbit:
 
     def plot_rv(self, t, ax=None, rv_unit=None, t_kwargs=None,
                 plot_kwargs=None):
-        """Plot the RV curve at the specified times.
+        """Plot the line-of-sight or radial velocity at the specified times.
 
         Parameters
         ----------
