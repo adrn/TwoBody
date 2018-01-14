@@ -68,12 +68,14 @@ class UnitSystem:
         for unit in units:
             typ = unit.physical_type
             if typ in self._registry:
-                raise ValueError("Multiple units passed in with type '{0}'".format(typ))
+                raise ValueError("Multiple units passed in with type "
+                                 "'{0}'".format(typ))
             self._registry[typ] = unit
 
         for phys_type in self._required_physical_types:
             if phys_type not in self._registry:
-                raise ValueError("You must specify a unit with physical type '{0}'".format(phys_type))
+                raise ValueError("You must specify a unit with physical type "
+                                 "'{0}'".format(phys_type))
             self._core_units.append(self._registry[phys_type])
 
     def __getitem__(self, key):
@@ -89,7 +91,8 @@ class UnitSystem:
                     break
 
             if unit is None:
-                raise ValueError("Physical type '{0}' doesn't exist in unit registry.".format(key))
+                raise ValueError("Physical type '{0}' doesn't exist in unit "
+                                 "registry.".format(key))
 
             unit = unit.decompose(self._core_units)
             unit._scale = 1.
@@ -103,7 +106,8 @@ class UnitSystem:
             yield uu
 
     def __str__(self):
-        return "UnitSystem ({0})".format(",".join([str(uu) for uu in self._core_units]))
+        return "UnitSystem ({0})".format(
+            ",".join([str(uu) for uu in self._core_units]))
 
     def __repr__(self):
         return "<{0}>".format(self.__str__())
@@ -179,6 +183,7 @@ class UnitSystem:
         try:
             c = getattr(const, name)
         except AttributeError:
-            raise ValueError("Constant name '{}' doesn't exist in astropy.constants".format(name))
+            raise ValueError("Constant name '{0}' doesn't exist in "
+                             "astropy.constants".format(name))
 
         return c.decompose(self._core_units).value
