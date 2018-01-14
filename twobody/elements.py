@@ -59,12 +59,12 @@ class OrbitalElements(metaclass=ElementsMeta):
 
         # Now make sure all element name attributes have been set:
         for name in self.names:
-            if not hasattr(self, '_'+name):
+            if not hasattr(self, '_' + name):
                 raise AttributeError('Invalid class definition!')
 
 
 class BaseKeplerElements(OrbitalElements):
-    default_units = UnitSystem(u.au, u.day, u.Msun, u.degree, u.km/u.s)
+    default_units = UnitSystem(u.au, u.day, u.Msun, u.degree, u.km / u.s)
     names = ['P', 'a', 'e', 'omega', 'i', 'Omega', 'M0']
 
     def __init__(self, P=None, a=None,
@@ -117,26 +117,26 @@ class BaseKeplerElements(OrbitalElements):
                 raise ValueError("You must specify {0}.".format(name))
 
         # Value validation:
-        if P < 0*u.day:
+        if P < 0 * u.day:
             raise ValueError("Period `P` must be positive.")
 
-        if a is not None and a < 0*u.au:
+        if a is not None and a < 0 * u.au:
             raise ValueError("Semi-major axis `a` must be positive.")
 
         if e < 0 or e >= 1:
             raise ValueError("Eccentricity `e` must be: 0 <= e < 1")
 
-        if i < 0*u.deg or i > 180*u.deg:
+        if i < 0*u.deg or i > 180 * u.deg:
             raise ValueError("Inclination `i` must be between 0º and 180º, you "
                              "passed in i={:.3f}".format(i.to(u.degree)))
 
         # Set object attributes, but make them read-only
-        self._a = a if a is not None else 1.*u.dimensionless_unscaled
+        self._a = a if a is not None else 1. * u.dimensionless_unscaled
         self._P = P
         self._e = float(e) * u.dimensionless_unscaled
-        self._omega = coord.Angle(omega).wrap_at(360*u.deg)
+        self._omega = coord.Angle(omega).wrap_at(360 * u.deg)
         self._i = coord.Angle(i)
-        self._Omega = coord.Angle(Omega).wrap_at(360*u.deg)
+        self._Omega = coord.Angle(Omega).wrap_at(360 * u.deg)
         self._M0 = coord.Angle(M0)
         self.t0 = t0
 
@@ -196,7 +196,7 @@ class KeplerElements(BaseKeplerElements):
     @property
     def K(self):
         """Velocity semi-amplitude."""
-        K = 2*pi * self.a * np.sin(self.i) / (self.P * np.sqrt(1-self.e**2))
+        K = 2*pi * self.a * np.sin(self.i) / (self.P * np.sqrt(1 - self.e**2))
         return self.units.decompose(K)
 
     @property
@@ -258,10 +258,10 @@ class TwoBodyKeplerElements(BaseKeplerElements):
 
         # TODO: I *think* that this means the orbit is for the fictitious particle?
         if P is None:
-            P = a_m_to_P(a, m1+m2)
+            P = a_m_to_P(a, m1 + m2)
 
         if a is None:
-            a = P_m_to_a(P, m1+m2)
+            a = P_m_to_a(P, m1 + m2)
 
         self._m1 = m1
         self._m2 = m2

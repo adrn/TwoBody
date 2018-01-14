@@ -39,7 +39,7 @@ class ArrayProcessor:
 
 def _parse_time(t):
     if not isinstance(t, Time):
-        return Time(t, format='mjd', scaled='tcb')
+        return Time(t, format='mjd', scale='tcb')
     return t
 
 
