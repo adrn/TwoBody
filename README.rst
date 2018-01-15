@@ -1,5 +1,8 @@
-twobody: The gravitational two-body problem
-===========================================
+twobody
+=======
+
+A Python package for computing orbits and astronomical observables for binary
+stars, exoplanets, and other gravitational two-body systems.
 
 .. image:: https://travis-ci.org/adrn/TwoBody.svg?branch=master
     :target: https://travis-ci.org/adrn/TwoBody
@@ -20,4 +23,4 @@ License
 -------
 
 This project is Copyright (c) Adrian Price-Whelan and licensed under the terms
-of the BSD 3-Clause license. See the ``licenses`` folder for more information.
+of the MIT license. See the ``licenses`` folder for more information.
