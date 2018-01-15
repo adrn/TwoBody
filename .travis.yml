@@ -29,7 +29,9 @@ env:
         # to repeat them for all configurations.
         - PYTHON_VERSION=3.6
         - NUMPY_VERSION=stable
-        - ASTROPY_VERSION=stable
+        # Until v3.0 is released:
+        # - ASTROPY_VERSION=stable
+        - ASTROPY_VERSION=development
         - MAIN_CMD='python setup.py'
         - SETUP_CMD='test'
         - PIP_DEPENDENCIES=''
