@@ -197,6 +197,7 @@ offset ICRS frame:
     :align: center
     :width: 512px
 
+    import astropy.coordinates as coord
     from twobody import Barycenter
     origin = coord.ICRS(ra=14.745*u.deg, dec=71.512*u.deg,
                         distance=71.634*u.pc,
@@ -205,7 +206,12 @@ offset ICRS frame:
                         radial_velocity=17.4123*u.km/u.s)
     barycen = Barycenter(origin=origin, t0=Time('J2014'))
 
-    t = Time('J2010') + np.linspace(0, 8*orb.P.value, 10000)*orb.P.unit
+    orb = KeplerOrbit(P=1.5*u.year, a=1.83*u.au, e=0.67,
+                  omega=17.14*u.deg, i=65*u.deg, Omega=0*u.deg,
+                  M0=35.824*u.deg, t0=Time('J2015.0'),
+                  barycenter=barycen)
+
+    t = Time('J2010') + np.linspace(0, 5*orb.P.value, 10000)*orb.P.unit
     orb_icrs = orb.icrs(t)
 
     offset_frame = coord.SkyOffsetFrame(origin=origin)
