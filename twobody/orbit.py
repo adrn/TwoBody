@@ -195,9 +195,9 @@ class KeplerOrbit:
 
         return self.K * self.unscaled_radial_velocity(time) + rv0
 
-    def reference_plane(self, time):
+    def orbital_plane(self, time):
         """Compute the orbit at specified times in the two-body barycentric
-        frame aligned with the reference plane coordinate system (XYZ).
+        frame aligned with the orbital plane (xyz).
 
         Parameters
         ----------
@@ -232,6 +232,23 @@ class KeplerOrbit:
 
         xyz = coord.CartesianRepresentation(x=x, y=y, z=z)
         vxyz = coord.CartesianDifferential(d_x=vx, d_y=vy, d_z=vz)
+
+        return xyz.with_differentials(vxyz)
+
+    def reference_plane(self, time):
+        """Compute the orbit at specified times in the two-body barycentric
+        frame aligned with the reference plane coordinate system (XYZ).
+
+        Parameters
+        ----------
+        time : array_like, `astropy.time.Time`
+            Array of times as barycentric MJD values, or an Astropy
+            `~astropy.time.Time` object containing the times to evaluate at.
+        """
+
+        xyz = self.orbital_plane(time)
+        vxyz = xyz.differentials['s']
+        xyz = xyz.without_differentials()
 
         # Construct rotation matrix to take the orbit from the orbital plane
         # system (xyz) to the reference plane system (XYZ):
