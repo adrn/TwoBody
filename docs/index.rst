@@ -5,6 +5,10 @@ twobody Documentation
 ``twobody`` is a package for computing orbits and astronomical observables for
 binary stars, exoplanets, and other gravitational two-body systems.
 
+.. note::
+
+    TwoBody is still in beta. Use at your own risk!
+
 For information about how to install the package see :ref:`install`. To learn
 how and where to contribute, see the :ref:`contribute` page. For a quick
 overview of available functionality, see the :ref:`getting-started` page. For a
