@@ -189,8 +189,8 @@ offset ICRS frame:
     ...         offset_frame.lat.milliarcsecond, marker='') # doctest: +SKIP
     >>> ax.set_xlabel(r'$\Delta\alpha$ [{0:latex_inline}]'.format(u.mas)) # doctest: +SKIP
     >>> ax.set_ylabel(r'$\Delta\delta$ [{0:latex_inline}]'.format(u.mas)) # doctest: +SKIP
-    >>> ax.set_xlim(-700, 700) # doctest: +SKIP
-    >>> ax.set_ylim(-700, 700) # doctest: +SKIP
+    >>> ax.set_xlim(-450, 450) # doctest: +SKIP
+    >>> ax.set_ylim(-450, 450) # doctest: +SKIP
 
 .. plot::
     :context: close-figs
@@ -222,5 +222,5 @@ offset ICRS frame:
             orb_offset.lat.milliarcsecond, marker='') # doctest: +SKIP
     ax.set_xlabel(r'$\Delta\alpha$ [{0:latex_inline}]'.format(u.mas)) # doctest: +SKIP
     ax.set_ylabel(r'$\Delta\delta$ [{0:latex_inline}]'.format(u.mas)) # doctest: +SKIP
-    ax.set_xlim(-700, 700)
-    ax.set_ylim(-700, 700)
+    ax.set_xlim(-450, 450)
+    ax.set_ylim(-450, 450)
