@@ -11,5 +11,10 @@ from ._astropy_init import *
 # ----------------------------------------------------------------------------
 
 if not _ASTROPY_SETUP_:
-    from .orbit import *
+    from .anomaly import *
+    from .barycenter import *
     from .elements import *
+    from .orbit import *
+    from .reference_plane import *
+    from .transforms import *
+    from .units import *
