@@ -123,6 +123,9 @@ class KeplerOrbit:
         times relative to the barycenter or reference point, i.e. in the
         reference plane system not in a solar system barycentric frame.
 
+        See the docstring of `~twobody.KeplerOrbit.radial_velocity` for more
+        information and caveats.
+
         Parameters
         ----------
         time : array_like, `astropy.time.Time`
@@ -167,11 +170,41 @@ class KeplerOrbit:
         plane system not in a solar system barycentric frame.
 
         This should always be close (in a machine precision sense) to
-        ``orbit.reference_plane(time).``
+        the ``z`` velocity of ``orbit.reference_plane(time).``
 
-        When the barycenter is assumed to be at rest with respect to the
-        observer, this should be equivalent to
+        When the barycenter is assumed to be at rest with respect to tangential
+        motion relative to the observer, this should be equivalent to
         ``orbit.icrs(time).radial_velocity``
+
+        As mentioned above and in :ref:`getting-started-rv`, the radial velocity
+        computed this way assumes that the barycenter does not move tangentially
+        between epochs and thus ignores spherical projection effects. For
+        sources with large proper motions, the true observable line-of-sight
+        velocity will change slightly over time. We can visualize the expected
+        differences given a full specification of the position and motion of the
+        barycenter:
+
+        >>> import astropy.units as u
+        >>> import astropy.coordinates as coord
+        >>> from astropy.time import Time
+        >>> from twobody import Barycenter, KeplerOrbit
+        >>> origin = coord.ICRS(ra=170.8743*u.deg, dec=-71.34*u.deg,
+        ...                     distance=57.134*u.pc,
+        ...                     pm_ra_cosdec=-206.718*u.mas/u.yr,
+        ...                     pm_dec=301.82*u.mas/u.yr,
+        ...                     radial_velocity=41.84*u.km/u.s)
+        >>> baryc = Barycenter(origin=origin, t0=Time('J2000'))
+        >>> orb = KeplerOrbit(P=1.5*u.year, e=0.67, a=1.77*u.au,
+        ...                   omega=17.14*u.deg, i=65*u.deg, Omega=0*u.deg,
+        ...                   M0=35.824*u.deg, t0=Time('J2015.0'),
+        ...                   barycenter=baryc)
+        >>> t = Time('J2000') + np.linspace(0, 15, 10000) * u.year
+        >>> true_rv = orb.icrs(t).radial_velocity
+        >>> approx_rv = orb.radial_velocity(t)
+        >>> (icrs.radial_velocity - rv).to(u.m/u.s).max() # doctest: +FLOAT_CMP
+        <Quantity 3.315196290913036 m / s>
+
+        In this case, the maximum difference is only ~3 m/s.
 
         Parameters
         ----------
