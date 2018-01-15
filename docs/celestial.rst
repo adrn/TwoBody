@@ -29,6 +29,7 @@ direction of the orbit. The :math:`x`-:math:`y` basis is shown as dark black
 arrows relative to the reference point (typically the center of mass):
 
 .. plot::
+    :width: 256px
 
     import numpy as np
     from matplotlib.patches import FancyArrowPatch
