@@ -30,6 +30,7 @@ arrows relative to the reference point (typically the center of mass):
 
 .. plot::
     :width: 256px
+    :align: center
 
     import numpy as np
     from matplotlib.patches import FancyArrowPatch
