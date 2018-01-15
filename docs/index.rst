@@ -89,7 +89,12 @@ package, see the :ref:`full-api`.
 
     t2 = Time('J2000') + np.linspace(0, 3*orb.P.value, 10000)*orb.P.unit
     icrs = orb.icrs(t2)
-    offset = icrs.transform_to(coord.SkyOffsetFrame(origin=origin))
+    # TODO: this is only necessary because the released version of Astropy
+    # doesn't support velocity transforms in SkyOffsetFrame
+    _icrs = coord.ICRS(icrs.spherical.without_differentials())
+    _origin = coord.ICRS(origin.spherical.without_differentials())
+    offset = _icrs.transform_to(coord.SkyOffsetFrame(origin=_origin))
+    # offset = icrs.transform_to(coord.SkyOffsetFrame(origin=origin))
 
     style = dict(marker='o', s=2, cmap='viridis')
 

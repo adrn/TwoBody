@@ -5,9 +5,7 @@ channels:
 
 dependencies:
     - python=3
-    # - astropy
+    - astropy
     - Cython
     - matplotlib
     - numpy
-    - pip:
-        - git+https://github.com/adrn/astropy.git@coordinates/skyoffset
