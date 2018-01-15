@@ -13,6 +13,17 @@ coordinate systems used in this package, see :ref:`celestial`. For more
 exhaustive documentation on how to use the functions and classes in this
 package, see the :ref:`full-api`.
 
+.. toctree::
+    :maxdepth: 1
+
+    install
+    contribute
+    getting-started
+    celestial
+    full-api
+
+~~~~~
+
 .. plot::
     :context: close-figs
     :align: center
@@ -101,16 +112,6 @@ package, see the :ref:`full-api`.
     axes[1].set_ylim(-2, 37)
 
     fig.tight_layout()
-
-
-.. toctree::
-    :maxdepth: 1
-
-    install
-    contribute
-    getting-started
-    celestial
-    full-api
 
 
 For developers
