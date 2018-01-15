@@ -6,8 +6,9 @@ Getting started with ``twobody``
 
 For the examples below, we'll need the following imports:
 
-    >>> from astropy.time import Time
     >>> import astropy.units as u
+    >>> from astropy.time import Time
+    >>> import astropy.coordinates as coord
     >>> import matplotlib.pyplot as plt
     >>> import numpy as np
 
@@ -136,3 +137,84 @@ information.
 
 Compute and plot an astrometric orbit curve given orbital elements and barycenter motion
 ----------------------------------------------------------------------------------------
+
+We again start by creating a `~twobody.KeplerOrbit` instance (see example above) to represent a
+Keplerian orbit. However, to compute an astrometric orbit, we also need to
+specify the location and velocity of the system barycenter at some reference
+epoch. This epoch can be different from the epoch from which the orbital
+elements are defined. To specify the barycenter, we therefore need to create an
+``astropy.coordinates`` object, and an ``astropy.time.Time`` object. Here, let's
+assume our barycenter reference epoch is Jan. 1, 2014, and make up some
+coordinates and velocity components for the barycenter:
+
+    >>> from twobody import Barycenter
+    >>> origin = coord.ICRS(ra=14.745*u.deg, dec=71.512*u.deg,
+    ...                     distance=71.634*u.pc,
+    ...                     pm_ra_cosdec=32.123*u.mas/u.yr,
+    ...                     pm_dec=86.63*u.mas/u.yr,
+    ...                     radial_velocity=17.4123*u.km/u.s)
+    >>> barycen = Barycenter(origin=origin, t0=Time('J2014'))
+
+We can pass this in when creating a `~twobody.KeplerOrbit` object so that the
+orbit object knows about the motion of the barycenter:
+
+    >>> from twobody import KeplerOrbit
+    >>> orb = KeplerOrbit(P=1.5*u.year, a=1.83*u.au, e=0.67,
+    ...                   omega=17.14*u.deg, i=65*u.deg, Omega=0*u.deg,
+    ...                   M0=35.824*u.deg, t0=Time('J2015.0'),
+    ...                   barycenter=barycen)
+
+We can then compute the position and velocity of the orbiting body at specified
+times in the ICRS frame using the `~twobody.KeplerOrbit.icrs` method:
+
+    >>> t = Time('J2010') + np.linspace(0, 8*orb.P.value, 10000)*orb.P.unit
+    >>> orb_icrs = orb.icrs(t)
+
+This gives us the ICRS position and velocity components of the source, but
+sometimes we might instead want to work in an "offset" frame centered on the
+reference location of the barycenter, i.e. a spherical coordinate system aligned
+with the ICRS, but with (0,0) at the location of the barycenter at the specified
+epoch (J2014). We can transform to this frame using the
+`astropy.coordinates.SkyOffsetFrame` (this requires Astropy version 3.0 or
+higher):
+
+    >>> offset_frame = coord.SkyOffsetFrame(origin=origin)
+    >>> orb_offset = orb_icrs.transform_to(offset_frame)
+
+We can then plot the astrometric orbit, including barycenter motion, in the
+offset ICRS frame:
+
+    >>> fig,ax = plt.subplots(1, 1) # doctest: +SKIP
+    >>> ax.plot(offset_frame.lon.wrap_at(180*u.deg).milliarcsecond,
+    ...         offset_frame.lat.milliarcsecond, marker='') # doctest: +SKIP
+    >>> ax.set_xlabel(r'$\Delta\alpha$ [{0:latex_inline}]'.format(u.mas)) # doctest: +SKIP
+    >>> ax.set_ylabel(r'$\Delta\delta$ [{0:latex_inline}]'.format(u.mas)) # doctest: +SKIP
+    >>> ax.set_xlim(-700, 700) # doctest: +SKIP
+    >>> ax.set_ylim(-700, 700) # doctest: +SKIP
+
+.. plot::
+    :context: close-figs
+    :align: center
+    :width: 512px
+
+    from twobody import Barycenter
+    origin = coord.ICRS(ra=14.745*u.deg, dec=71.512*u.deg,
+                        distance=71.634*u.pc,
+                        pm_ra_cosdec=32.123*u.mas/u.yr,
+                        pm_dec=86.63*u.mas/u.yr,
+                        radial_velocity=17.4123*u.km/u.s)
+    barycen = Barycenter(origin=origin, t0=Time('J2014'))
+
+    t = Time('J2010') + np.linspace(0, 8*orb.P.value, 10000)*orb.P.unit
+    orb_icrs = orb.icrs(t)
+
+    offset_frame = coord.SkyOffsetFrame(origin=origin)
+    orb_offset = orb_icrs.transform_to(offset_frame)
+
+    fig,ax = plt.subplots(1, 1, figsize=(5,5)) # doctest: +SKIP
+    ax.plot(orb_offset.lon.wrap_at(180*u.deg).milliarcsecond,
+            orb_offset.lat.milliarcsecond, marker='') # doctest: +SKIP
+    ax.set_xlabel(r'$\Delta\alpha$ [{0:latex_inline}]'.format(u.mas)) # doctest: +SKIP
+    ax.set_ylabel(r'$\Delta\delta$ [{0:latex_inline}]'.format(u.mas)) # doctest: +SKIP
+    ax.set_xlim(-700, 700)
+    ax.set_ylim(-700, 700)
