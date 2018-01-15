@@ -1,3 +1,5 @@
+.. _celestial:
+
 *****************************************************
 Celestial mechanics and coordinate system conventions
 *****************************************************
