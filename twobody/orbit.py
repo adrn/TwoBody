@@ -104,7 +104,24 @@ class KeplerOrbit:
             raise TypeError("barycenter must be a twobody.Barycenter instance")
 
         self.elements = elements
-        self.barycenter = barycenter
+        self._barycenter = barycenter
+
+        # TODO: replace the below with a proper cache dictionary
+        if barycenter is None:
+            # cache this to make lookup faster
+            self._v0 = 0 * u.km/u.s # systemic velocity 0 by default
+        else:
+            self._v0 = self.barycenter.origin.radial_velocity
+
+    ##########################################################################
+    # Read-only attributes
+
+    @property
+    def barycenter(self):
+        return self._barycenter
+
+    ##########################################################################
+    # Python special methods
 
     def __getattr__(self, name):
 
@@ -116,6 +133,12 @@ class KeplerOrbit:
         else:
             raise AttributeError("type object '{0}' has no attribute '{1}'"
                                  .format(self.__class__.__name__, name))
+
+    def __copy__(self):
+        import copy
+        elements = copy.copy(self.elements)
+        barycen = copy.copy(self.barycenter)
+        return self.__class__(elements=elements, barycenter=barycen)
 
     def unscaled_radial_velocity(self, time,
                                  anomaly_tol=None, anomaly_maxiter=None):
@@ -220,13 +243,7 @@ class KeplerOrbit:
             `~twobody.eccentric_anomaly_from_mean_anomaly` for solving
             for the eccentric anomaly. See default value in that function.
         """
-
-        if self.barycenter is not None:
-            rv0 = self.barycenter.origin.radial_velocity
-        else:
-            rv0 = 0 * u.km / u.s
-
-        return self.K * self.unscaled_radial_velocity(time) + rv0
+        return self.K * self.unscaled_radial_velocity(time) + self._v0
 
     def orbital_plane(self, time):
         """Compute the orbit at specified times in the two-body barycentric
