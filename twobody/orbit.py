@@ -201,7 +201,7 @@ class KeplerOrbit:
         >>> t = Time('J2000') + np.linspace(0, 15, 10000) * u.year
         >>> true_rv = orb.icrs(t).radial_velocity
         >>> approx_rv = orb.radial_velocity(t)
-        >>> (icrs.radial_velocity - rv).to(u.m/u.s).max() # doctest: +FLOAT_CMP
+        >>> (true_rv - approx_rv).to(u.m/u.s).max() # doctest: +FLOAT_CMP
         <Quantity 3.315196290913036 m / s>
 
         In this case, the maximum difference is only ~3 m/s.
