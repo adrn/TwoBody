@@ -107,3 +107,17 @@ def test_plotting():
     orbit.plot_rv(t=mjd, ax=ax)
 
     plt.close('all')
+
+
+def test_nan():
+    orb = KeplerOrbit(P=1.5*u.year, e=0.67, M0=0*u.deg, omega=17.14*u.deg,
+                      i=np.nan*u.deg, Omega=np.nan*u.deg, a=np.nan*u.au)
+
+    mjd = np.linspace(56123.123, 57293.2345, 1024)  # random MJD's
+    t = Time(mjd, format='mjd', scale='utc')
+
+    rv = orb.radial_velocity(t)
+    urv = orb.unscaled_radial_velocity(t)
+
+    assert np.all(np.isnan(rv.value))
+    assert np.all(np.isfinite(urv))
