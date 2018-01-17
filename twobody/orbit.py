@@ -1,3 +1,5 @@
+# coding: utf-8
+
 # Third-party
 import astropy.coordinates as coord
 from astropy.coordinates.matrix_utilities import matrix_product, rotation_matrix
