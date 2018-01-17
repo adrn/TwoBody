@@ -1,6 +1,3 @@
-# Standard library
-import inspect
-
 # Third-party
 import astropy.units as u
 from astropy.utils.decorators import wraps
@@ -25,7 +22,6 @@ def anomaly_wrapper(func):
     returns the output angle in the same units and with the same shape as the
     input.
     """
-    sig = inspect.signature(func)
 
     @wraps(func)
     def function_wrapper(ang, e, *args, **kwargs):

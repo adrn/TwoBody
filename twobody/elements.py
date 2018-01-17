@@ -9,6 +9,7 @@ from astropy.time import Time
 import astropy.units as u
 import numpy as np
 from numpy import pi
+from six import with_metaclass
 
 # Project
 from .transforms import a_m_to_P, P_m_to_a
@@ -44,7 +45,7 @@ class ElementsMeta(abc.ABCMeta):
         members[attr_name] = property(getter)
 
 
-class OrbitalElements(metaclass=ElementsMeta):
+class OrbitalElements(with_metaclass(ElementsMeta)):
     """
     Subclasses must define the class attribute ``.default_units`` to be a
     ``UnitSystem`` instance.
