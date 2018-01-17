@@ -1,3 +1,5 @@
+# coding: utf-8
+
 # Standard library
 import abc
 import warnings
@@ -36,7 +38,7 @@ class ElementsMeta(abc.ABCMeta):
         for name_ in members['names']:
             mcls.readonly_prop_factory(members, name_)
 
-        return super().__new__(mcls, name, bases, members)
+        return super(ElementsMeta, mcls).__new__(mcls, name, bases, members)
 
     @staticmethod
     def readonly_prop_factory(members, attr_name):
@@ -147,7 +149,7 @@ class BaseKeplerElements(OrbitalElements):
 
         # Must happen at the end because it validates that all element names
         # have been set properly:
-        super().__init__(units=units)
+        super(BaseKeplerElements, self).__init__(units=units)
 
 
 class KeplerElements(BaseKeplerElements):
@@ -155,7 +157,7 @@ class KeplerElements(BaseKeplerElements):
 
     @u.quantity_input(P=u.year, a=u.au,
                       omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
-    def __init__(self, *, P=None, a=None,
+    def __init__(self, P=None, a=None,
                  e=0, omega=None, i=None, Omega=None,
                  M0=None, t0=None, units=None):
         """Keplerian orbital elements for a single orbit.
@@ -189,7 +191,7 @@ class KeplerElements(BaseKeplerElements):
 
         """
 
-        super().__init__(P=P, a=a, e=e, omega=omega, i=i, Omega=Omega,
+        super(KeplerElements, self).__init__(P=P, a=a, e=e, omega=omega, i=i, Omega=Omega,
                          M0=M0, t0=t0, units=units)
 
         if self.K.unit.physical_type == 'speed':
@@ -225,7 +227,7 @@ class TwoBodyKeplerElements(BaseKeplerElements):
 
     @u.quantity_input(P=u.year, a=u.au, m1=u.Msun, m2=u.Msun,
                       omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
-    def __init__(self, *, P=None, a=None, m1=None, m2=None,
+    def __init__(self, P=None, a=None, m1=None, m2=None,
                  e=0, omega=None, i=None, Omega=None,
                  M0=None, t0=None, units=None):
         """Keplerian orbital elements for a two-body system.
@@ -276,7 +278,7 @@ class TwoBodyKeplerElements(BaseKeplerElements):
         self.m_tot = m1 + m2
 
         # values are validated
-        super().__init__(a=a, P=P,
+        super(TwoBodyKeplerElements, self).__init__(a=a, P=P,
                          e=e, omega=omega, i=i, Omega=omega,
                          M0=M0, t0=t0, units=units)
 
