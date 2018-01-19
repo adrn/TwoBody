@@ -5,6 +5,7 @@ import warnings
 import astropy.coordinates as coord
 from astropy.time import Time
 import astropy.units as u
+import numpy as np
 
 # Project
 from .elements import _parse_time
@@ -86,6 +87,7 @@ class Barycenter:
 
     def __repr__(self):
         fmt_str = "<Barycenter: origin={0.origin}, epoch={0.t0}>".format(self)
+        return fmt_str
 
     def __str__(self):
         return repr(self)
