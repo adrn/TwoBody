@@ -4,11 +4,17 @@
 Installation
 ************
 
+.. note::
+
+    ``twobody`` depends on the presently unreleased version 3.0 of `astropy
+    <https://astropy.org>`_, which you can install with ``pip install
+    git+https://github.com/astropy/astropy@v3.0.x``.
+
 With `pip`
 ==========
 
-.. .. image:: http://img.shields.io/pypi/v/twobody.svg?style=flat
-..         :target: https://pypi.python.org/pypi/twobody/
+.. image:: http://img.shields.io/pypi/v/twobody.svg?style=flat
+        :target: https://pypi.python.org/pypi/twobody/
 
 To install the latest stable version using ``pip``, use::
 
