@@ -6,8 +6,8 @@ Installation
 
 .. note::
 
-    ``twobody`` depends on the presently unreleased version 3.0 of `astropy
-    <https://astropy.org>`_, which you can install with ``pip install
+    ``twobody`` depends on the presently unreleased version 3.0 of `astropy`,
+    which you can install with ``pip install
     git+https://github.com/astropy/astropy@v3.0.x``.
 
 With `pip`
