@@ -243,7 +243,16 @@ class KeplerOrbit:
             `~twobody.eccentric_anomaly_from_mean_anomaly` for solving
             for the eccentric anomaly. See default value in that function.
         """
-        return self.K * self.unscaled_radial_velocity(time) + self._v0
+        try:
+            rv = self.K * self.unscaled_radial_velocity(time) + self._v0
+        except u.UnitConversionError:
+            raise ValueError('Orbit does not have enough valid orbital '
+                             'element information to compute a unit-ful '
+                             'radial velocity. Use '
+                             '`unscaled_radial_velocity()` manually, or '
+                             're-initialize with full information (e.g., '
+                             'with all angles specified: i, Omega)')
+        return rv
 
     def orbital_plane(self, time):
         """Compute the orbit at specified times in the two-body barycentric

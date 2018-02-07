@@ -2,6 +2,7 @@
 from astropy.time import Time
 import astropy.units as u
 from astropy.tests.helper import catch_warnings
+import numpy as np
 import pytest
 
 # Project
@@ -29,11 +30,22 @@ def test_kepler():
         KeplerOrbit(**kw, elements_type='kepler')
 
     # Invalid initialization:
-    for name in ['P', 'i', 'omega', 'Omega']:
+    for name in ['P', 'omega']:
         kw = kw1.copy()
         kw.pop(name)
         with pytest.raises(ValueError):
             KeplerElements(**kw)
+
+    # check they get set to nan:
+    kw = kw1.copy()
+    kw.pop('Omega')
+    elem = KeplerElements(**kw)
+    assert np.isnan(elem.Omega)
+
+    kw = kw1.copy()
+    kw.pop('i')
+    elem = KeplerElements(**kw)
+    assert np.isnan(elem.i)
 
     # Make sure attributes exist and have correct units:
     elems = KeplerElements(P=10*u.day, e=0.5, a=0.1*u.au,

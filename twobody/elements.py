@@ -115,7 +115,7 @@ class BaseKeplerElements(OrbitalElements):
         t0 = _parse_time(t0)
 
         # Now check that required elements are defined:
-        _required = ['P', 'omega', 'i', 'Omega']
+        _required = ['P', 'omega']
         for name in _required:
             if eval(name) is None:
                 raise ValueError("You must specify {0}.".format(name))
@@ -130,9 +130,15 @@ class BaseKeplerElements(OrbitalElements):
         if e < 0 or e >= 1:
             raise ValueError("Eccentricity `e` must be: 0 <= e < 1")
 
-        if i < 0*u.deg or i > 180 * u.deg:
+        if i is not None and (i < 0*u.deg or i > 180 * u.deg):
             raise ValueError("Inclination `i` must be between 0º and 180º, you "
                              "passed in i={:.3f}".format(i.to(u.degree)))
+
+        if i is None:
+            i = np.nan * u.deg
+
+        if Omega is None:
+            Omega = np.nan * u.deg
 
         # Set object attributes, but make them read-only
         self._a = a if a is not None else 1. * u.dimensionless_unscaled

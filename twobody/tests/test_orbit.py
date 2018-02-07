@@ -110,13 +110,21 @@ def test_plotting():
 
 
 def test_nan():
-    orb = KeplerOrbit(P=1.5*u.year, e=0.67, M0=0*u.deg, omega=17.14*u.deg,
-                      i=np.nan*u.deg, Omega=np.nan*u.deg, a=np.nan*u.au)
 
     mjd = np.linspace(56123.123, 57293.2345, 1024)  # random MJD's
     t = Time(mjd, format='mjd', scale='utc')
 
+    orb = KeplerOrbit(P=1.5*u.year, e=0.67, M0=0*u.deg, omega=17.14*u.deg,
+                      i=np.nan*u.deg, Omega=np.nan*u.deg, a=np.nan*u.au)
     rv = orb.radial_velocity(t)
+    urv = orb.unscaled_radial_velocity(t)
+
+    assert np.all(np.isnan(rv.value))
+    assert np.all(np.isfinite(urv))
+
+    orb = KeplerOrbit(P=1.5*u.year, e=0.67, M0=0*u.deg, omega=17.14*u.deg)
+    with pytest.raises(ValueError):
+        rv = orb.radial_velocity(t)
     urv = orb.unscaled_radial_velocity(t)
 
     assert np.all(np.isnan(rv.value))
