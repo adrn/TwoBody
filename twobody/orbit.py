@@ -102,7 +102,8 @@ class KeplerOrbit:
             raise TypeError("'elements' must be an instance of an "
                             "OrbitalElements subclass.")
 
-        if barycenter is not None and not isinstance(barycenter, Barycenter):
+        if barycenter is not None and not isinstance(barycenter, (RVTrend,
+                                                                  Barycenter)):
             raise TypeError("barycenter must be a twobody.Barycenter instance")
 
         self.elements = elements

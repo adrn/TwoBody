@@ -59,7 +59,7 @@ class PolynomialRVTrend(RVTrend):
             return np.zeros_like(t).view(np.ndarray)
 
         if self.t0 is not None:
-            t = (t - self.t0).tcb.jd
+            t = (t - self.t0).jd
         else:
             t = t.tcb.mjd
 

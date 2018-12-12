@@ -35,4 +35,7 @@ def test_polynomial():
     trend = PolynomialRVTrend([10.*u.km/u.s, 1.*u.km/u.s/u.day],
                               t0=Time(55555., format='mjd'))
     res = trend(t.tcb.mjd)
-    print(res)
+
+    t = (Time(55555., format='mjd') +
+         np.sort(np.random.uniform(15., 23., 128))*u.day)
+    res = trend(t)
