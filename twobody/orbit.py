@@ -14,9 +14,11 @@ from .utils import ArrayProcessor
 from .barycenter import Barycenter
 from .wrap import cy_rv_from_elements
 from .reference_plane import ReferencePlaneFrame
+from .bary_trends import RVTrend, PolynomialRVTrend
 
 __all__ = ['KeplerOrbit']
 
+_KMS = u.km/u.s
 
 class KeplerOrbit:
 
@@ -104,14 +106,19 @@ class KeplerOrbit:
             raise TypeError("barycenter must be a twobody.Barycenter instance")
 
         self.elements = elements
-        self._barycenter = barycenter
 
-        # TODO: replace the below with a proper cache dictionary
-        if barycenter is None:
-            # cache this to make lookup faster
-            self._v0 = 0 * u.km/u.s # systemic velocity 0 by default
+        if isinstance(barycenter, RVTrend):
+            self._vtrend = barycenter
+            barycenter = None
+
+        elif barycenter is None:
+            self._vtrend = lambda t: 0
+
         else:
-            self._v0 = self.barycenter.origin.radial_velocity
+            self._vtrend = PolynomialRVTrend([
+                barycenter.origin.radial_velocity])
+
+        self._barycenter = barycenter
 
     ##########################################################################
     # Read-only attributes
@@ -243,9 +250,9 @@ class KeplerOrbit:
             `~twobody.eccentric_anomaly_from_mean_anomaly` for solving
             for the eccentric anomaly. See default value in that function.
         """
-        try:
-            rv = self.K * self.unscaled_radial_velocity(time) + self._v0
-        except u.UnitConversionError:
+        trend = self._vtrend(time)
+        rv = self.K * self.unscaled_radial_velocity(time) + trend
+        if not rv.unit.is_equivalent(_KMS):
             raise ValueError('Orbit does not have enough valid orbital '
                              'element information to compute a unit-ful '
                              'radial velocity. Use '
