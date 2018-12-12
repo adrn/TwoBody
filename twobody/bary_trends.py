@@ -3,6 +3,8 @@ import numpy as np
 
 from .elements import _parse_time
 
+__all__ = ['RVTrend', 'PolynomialRVTrend']
+
 class RVTrend:
     pass
 

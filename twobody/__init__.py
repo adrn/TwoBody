@@ -14,6 +14,7 @@ from ._astropy_init import *
 if not _ASTROPY_SETUP_:
     from .anomaly import *
     from .barycenter import *
+    from .bary_trends import *
     from .elements import *
     from .orbit import *
     from .reference_plane import *
