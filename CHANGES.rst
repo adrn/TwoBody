@@ -1,7 +1,7 @@
-0.3 (unreleased)
+0.3 (2019-02-25)
 ----------------
 
-- no changes yet
+- Added support for long-term polynomial velocity trends.
 
 0.2 (2018-01-21)
 ----------------
