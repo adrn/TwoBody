@@ -9,7 +9,7 @@ from scipy.optimize import root
 from .utils import format_doc
 
 
-__all__ = ['a_P_to_m', 'a_m_to_P', 'P_m_to_a']
+__all__ = ['a_P_to_m', 'a_m_to_P', 'P_m_to_a', 'get_m2_min']
 
 
 doc_a = """a : quantity_like [length]
