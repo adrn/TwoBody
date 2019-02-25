@@ -5,8 +5,6 @@
 # cython: wraparound=False
 # cython: profile=False
 
-from __future__ import division, print_function
-
 # Third-party
 import numpy as np
 cimport numpy as np
