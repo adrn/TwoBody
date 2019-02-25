@@ -335,8 +335,13 @@ class KeplerOrbit:
         return ReferencePlaneFrame(XYZ, **kw)
 
     def icrs(self, time):
-        """
-        TODO: docstring
+        """Return the ICRS (i.e. reference plane) position and velocity of the
+        orbit at the specified time(s).
+
+        Parameters
+        ----------
+        time : array_like, `~astropy.time.Time`
+            Time array. Either in BMJD or as an Astropy time.
         """
         rp = self.reference_plane(time)
 
@@ -355,13 +360,13 @@ class KeplerOrbit:
 
         return coord.ICRS(new_pos.with_differentials(new_vel))
 
-    def plot_rv(self, t, ax=None, rv_unit=None, t_kwargs=None,
+    def plot_rv(self, time, ax=None, rv_unit=None, t_kwargs=None,
                 plot_kwargs=None):
         """Plot the line-of-sight or radial velocity at the specified times.
 
         Parameters
         ----------
-        t : array_like, `~astropy.time.Time`
+        time : array_like, `~astropy.time.Time`
             Time array. Either in BMJD or as an Astropy time.
         ax : `~matplotlib.axes.Axes`, optional
             The axis to draw on (default is to grab the current
@@ -401,8 +406,8 @@ class KeplerOrbit:
         style.setdefault('alpha', 0.5)
         style.setdefault('marker', None)
 
-        if not isinstance(t, Time):
-            t = Time(t, **t_kwargs)
+        if not isinstance(time, Time):
+            t = Time(time, **t_kwargs)
         rv = self.radial_velocity(t).to(rv_unit).value
 
         _t = getattr(getattr(t, t_kwargs['scale']), t_kwargs['format'])
