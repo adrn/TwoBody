@@ -3,7 +3,6 @@ import astropy.units as u
 from astropy.utils.misc import isiterable
 from astropy.constants import G
 import numpy as np
-from scipy.optimize import root
 
 # Project
 from .utils import format_doc
@@ -85,6 +84,8 @@ def get_m2_min(m1, mf):
     m2_min : `~astropy.units.Quantity` [mass]
         The minimum companion mass.
     """
+    from scipy.optimize import root
+
     mf = mf.to(m1.unit)
     if isiterable(m1) and isiterable(mf):
         m2s = []
