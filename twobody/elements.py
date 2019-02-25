@@ -235,15 +235,15 @@ class TwoBodyKeplerElements(BaseKeplerElements):
                  M0=None, t0=None, units=None):
         """Keplerian orbital elements for a two-body system.
 
-        TODO: be very explicit. Are we specifying the elements of one of the
-        bodies, or of the fictitious body? Or allow user to specify?
+        You can either specify period, ``P`` and the masses ``m1``, ``m2``, or
+        the separation ``a`` and the two masses.
 
         Parameters
         ----------
         P : quantity_like [time]
             Orbital period.
         a : quantity_like [length]
-            Semi-major axis.
+            Semi-major axis of the fictitious particle
         e : numeric (optional)
             Orbital eccentricity. Default is circular, ``e=0``.
         omega : quantity_like, `~astropy.coordinates.Angle` [angle]
@@ -251,7 +251,7 @@ class TwoBodyKeplerElements(BaseKeplerElements):
         i : quantity_like, `~astropy.coordinates.Angle` [angle]
             Inclination of the orbit.
         Omega : quantity_like, `~astropy.coordinates.Angle` [angle]
-            Longitude of the ascending node.
+            Longitude of the ascending node of the fictitious particle.
         M0 : quantity_like, `~astropy.coordinates.Angle` [angle] (optional)
             Mean anomaly at epoch ``t0``. Default is 0º if not specified.
         t0 : numeric, `~astropy.coordinates.Time` (optional)
@@ -269,7 +269,6 @@ class TwoBodyKeplerElements(BaseKeplerElements):
             raise ValueError("You can only specify one of period `P` or "
                              "semi-major axis `a`.")
 
-        # TODO: I *think* that this means the orbit is for the fictitious particle?
         if P is None:
             P = a_m_to_P(a, m1 + m2)
 
