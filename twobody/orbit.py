@@ -407,10 +407,10 @@ class KeplerOrbit:
         style.setdefault('marker', None)
 
         if not isinstance(time, Time):
-            t = Time(time, **t_kwargs)
-        rv = self.radial_velocity(t).to(rv_unit).value
+            time = Time(time, **t_kwargs)
+        rv = self.radial_velocity(time).to(rv_unit).value
 
-        _t = getattr(getattr(t, t_kwargs['scale']), t_kwargs['format'])
+        _t = getattr(getattr(time, t_kwargs['scale']), t_kwargs['format'])
         ax.plot(_t, rv, **style)
 
         return ax

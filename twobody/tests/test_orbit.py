@@ -130,10 +130,10 @@ def test_plotting():
         orbit.plot_rv(_t, t_kwargs=dict(format='jd', scale='utc'))
 
     fig,ax = plt.subplots(1,1)
-    orbit.plot_rv(t=t, ax=ax, plot_kwargs=dict(color='#de2d26'))
+    orbit.plot_rv(time=t, ax=ax, plot_kwargs=dict(color='#de2d26'))
 
     fig,ax = plt.subplots(1,1)
-    orbit.plot_rv(t=mjd, ax=ax)
+    orbit.plot_rv(time=mjd, ax=ax)
 
     plt.close('all')
 
