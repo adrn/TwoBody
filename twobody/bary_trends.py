@@ -58,7 +58,7 @@ class PolynomialRVTrend(RVTrend):
         t = _parse_time(t)
 
         if len(self.coeffs) == 0:
-            return np.zeros_like(t).view(np.ndarray)
+            return np.zeros_like(t).astype(float)
 
         if self.t0 is not None:
             t = (t - self.t0).jd

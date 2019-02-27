@@ -14,6 +14,7 @@ def test_polynomial():
 
     trend = PolynomialRVTrend()
     assert trend(0.) == 0.
+    assert trend([0.]) == np.array([0.])
     assert np.all(trend(np.arange(10)) == 0.)
 
     # invalid units
