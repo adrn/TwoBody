@@ -1,18 +1,41 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+# Note: This file needs to be Python 2 / <3.6 compatible, so that the nice
+# "This package only supports Python 3.x+" error prints without syntax errors etc.
 
 import glob
 import os
 import sys
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser
+
+# Get some values from the setup.cfg
+conf = ConfigParser()
+conf.read(['setup.cfg'])
+metadata = dict(conf.items('metadata'))
+
+PACKAGENAME = metadata.get('package_name', 'packagename')
+DESCRIPTION = metadata.get('description', 'Astropy Package Template')
+AUTHOR = metadata.get('author', 'Astropy Developers')
+AUTHOR_EMAIL = metadata.get('author_email', '')
+LICENSE = metadata.get('license', 'unknown')
+URL = metadata.get('url', 'http://docs.astropy.org/projects/package-template/')
+__minimum_python_version__ = metadata.get("minimum_python_version", "3.6")
+
+# Enforce Python version check - this is the same check as in __init__.py but
+# this one has to happen before importing ah_bootstrap.
+if sys.version_info < tuple((int(val) for val in __minimum_python_version__.split('.'))):
+    sys.stderr.write("ERROR: packagename requires Python {} or later\n".format(__minimum_python_version__))
+    sys.exit(1)
+
+# Import ah_bootstrap after the python version validation
 
 import ah_bootstrap
 from setuptools import setup
 
-# A dirty hack to get around some early import/configurations ambiguities
-if sys.version_info[0] >= 3:
-    import builtins
-else:
-    import __builtin__ as builtins
+import builtins
 builtins._ASTROPY_SETUP_ = True
 
 from astropy_helpers.setup_helpers import (register_commands, get_debug_option,
@@ -20,22 +43,6 @@ from astropy_helpers.setup_helpers import (register_commands, get_debug_option,
 from astropy_helpers.git_helpers import get_git_devstr
 from astropy_helpers.version_helpers import generate_version_py
 
-# Get some values from the setup.cfg
-try:
-    from ConfigParser import ConfigParser
-except ImportError:
-    from configparser import ConfigParser
-
-conf = ConfigParser()
-conf.read(['setup.cfg'])
-metadata = dict(conf.items('metadata'))
-
-PACKAGENAME = metadata.get('package_name', 'twobody')
-DESCRIPTION = metadata.get('description', 'The gravitational two-body problem.')
-AUTHOR = metadata.get('author', 'Adrian Price-Whelan')
-AUTHOR_EMAIL = metadata.get('author_email', '')
-LICENSE = metadata.get('license', 'unknown')
-URL = metadata.get('url', 'https://github.com/adrn/TwoBody')
 
 # order of priority for long_description:
 #   (1) set in setup.cfg,
@@ -84,9 +91,9 @@ generate_version_py(PACKAGENAME, VERSION, RELEASE,
                     get_debug_option(PACKAGENAME))
 
 # Treat everything in scripts except README* as a script to be installed
-scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
-           if not os.path.basename(fname).startswith('README')]
-
+# scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
+#            if not os.path.basename(fname).startswith('README')]
+scripts = []
 
 # Get configuration information from all of the various subpackages.
 # See the docstring for setup_helpers.update_package_files for more
@@ -126,7 +133,7 @@ setup(name=PACKAGENAME,
       version=VERSION,
       description=DESCRIPTION,
       scripts=scripts,
-      install_requires=metadata.get('install_requires', 'astropy').strip().split(),
+      install_requires=[s.strip() for s in metadata.get('install_requires', 'astropy').split(',')],
       author=AUTHOR,
       author_email=AUTHOR_EMAIL,
       license=LICENSE,
@@ -136,5 +143,6 @@ setup(name=PACKAGENAME,
       zip_safe=False,
       use_2to3=False,
       entry_points=entry_points,
+      python_requires='>={}'.format(__minimum_python_version__),
       **package_info
 )
