@@ -1,6 +1,8 @@
 0.5 (unreleased)
 ----------------
 
+- Added the option to initialize a ``KeplerElements`` or ``KeplerOrbit`` object
+  with a specified velocity semi-amplitude, ``K``.
 
 0.4 (2019-02-25)
 ----------------

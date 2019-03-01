@@ -49,7 +49,11 @@ class KeplerOrbit:
         P : quantity_like [time]
             Orbital period.
         a : quantity_like [length] (optional)
-            Semi-major axis. If unspecified, computed orbits will be unscaled.
+            Semi-major axis. Specify this OR the semi-amplitude ``K``, but not
+            both. If unspecified, computed orbits will be unscaled.
+        K : quantity_like [speed] (optional)
+            Velocity semi-amplitudes. Specify this OR the semi-major axis ``a``,
+            but not both. If unspecified, computed orbits will be unscaled.
         e : numeric (optional)
             Orbital eccentricity. Default is circular, ``e=0``.
         omega : quantity_like, `~astropy.coordinates.Angle` [angle]
