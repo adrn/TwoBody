@@ -16,7 +16,7 @@ doc_a = """a : quantity_like [length]
 """
 
 doc_P = """P : quantity_like [time]
-        Period.
+        Orbital period.
 """
 
 doc_m = """m : quantity_like [mass]
@@ -61,6 +61,35 @@ def P_m_to_a(P, m):
     {m}
     """
     return np.cbrt(G * m * (P/(2*np.pi))**2)
+
+
+@u.quantity_input(P=u.day, K=u.km/u.s, i=u.deg)
+@format_doc("""{__doc__}""", P=doc_P)
+def PeKi_to_a(P, e, K, i=None):
+    """Compute the semi-major axis given the orbital period, eccentricity,
+    semi-amplitude, and inclination. If you don't have a measured inclination,
+    use the default i=90º and the returned semi-major axis will be a*sin(i)
+    instead.
+
+    Parameters
+    ----------
+    {P}
+    e : numeric
+        Eccentricity.
+    K : quantity_like [speed]
+        Velocity semi-amplitude.
+    i : quantity_like [angle]
+        Inclination.
+
+    Returns
+    -------
+    a : `~astropy.units.Quantity` [length]
+        Semi-major axis.
+    """
+    if i is None:
+        i = 90*u.deg
+    a = K / (2*np.pi * np.sin(i)) * (P * np.sqrt(1 - e**2))
+    return a
 
 
 def _m2_func(m2, m1, sini, mf):

@@ -11,7 +11,7 @@ import numpy as np
 from numpy import pi
 
 # Project
-from .transforms import a_m_to_P, P_m_to_a
+from .transforms import a_m_to_P, P_m_to_a, PeKi_to_a
 from .units import UnitSystem
 
 __all__ = ['OrbitalElements', 'KeplerElements', 'TwoBodyKeplerElements']
@@ -158,9 +158,9 @@ class BaseKeplerElements(OrbitalElements):
 class KeplerElements(BaseKeplerElements):
     names = ['P', 'a', 'e', 'omega', 'i', 'Omega', 'M0']
 
-    @u.quantity_input(P=u.year, a=u.au,
+    @u.quantity_input(P=u.year, a=u.au, K=u.km/u.s,
                       omega=u.deg, i=u.deg, Omega=u.deg, M0=u.deg)
-    def __init__(self, *, P=None, a=None,
+    def __init__(self, *, P=None, a=None, K=None,
                  e=0, omega=None, i=None, Omega=None,
                  M0=None, t0=None, units=None):
         """Keplerian orbital elements for a single orbit.
@@ -193,9 +193,19 @@ class KeplerElements(BaseKeplerElements):
             is accessible as `KeplerElements.default_units`.
 
         """
+        if K is not None and a is not None:
+            raise ValueError("Both `K` and `a` were specified, but can only "
+                             "accept one or the other.")
 
         super().__init__(P=P, a=a, e=e, omega=omega, i=i, Omega=Omega,
                          M0=M0, t0=t0, units=units)
+
+        # TODO: this is a bit messy because we double-initialize! The first
+        # time to validate, the second to use the proper "a"
+        if K is not None:
+            a = PeKi_to_a(P, e, K, i)
+            super().__init__(P=P, a=a, e=e, omega=omega, i=i, Omega=Omega,
+                             M0=M0, t0=t0, units=units)
 
         if self.K.unit.physical_type == 'speed':
             # Now we do a quick validation to make sure we're not relativistic...

@@ -19,10 +19,12 @@ def test_kepler():
     kw2 = dict(a=0.1*u.au)
     kw3 = dict(M0=40*u.deg, t0=Time('J2015.0'))
     kw4 = dict(units=UnitSystem(u.m, u.s, u.rad, u.kg))
+    kw5 = dict(K=10*u.km/u.s)
 
     for kw in [kw1, {**kw1, **kw2}, {**kw1, **kw2, **kw3}, {**kw1, **kw3},
                {**kw1, **kw4}, {**kw1, **kw2, **kw4},
-               {**kw1, **kw2, **kw3, **kw4}]:  # not meant to be exhaustive
+               {**kw1, **kw2, **kw3, **kw4},
+               {**kw1, **kw5}]:  # not meant to be exhaustive
         elems = KeplerElements(**kw)
 
         # Make sure this also works as arguments to KeplerOrbit
@@ -56,6 +58,14 @@ def test_kepler():
     assert elems.K.unit == u.m/u.s
     assert elems.m_f.unit == u.kg
 
+    elems = KeplerElements(P=10*u.day, e=0.5, K=10*u.km/u.s,
+                           omega=10*u.deg, i=20*u.deg, Omega=30*u.deg,
+                           units=UnitSystem(u.m, u.s, u.rad, u.kg, u.m/u.s))
+
+    assert elems.P.unit == u.s
+    assert elems.K.unit == u.m/u.s
+    assert elems.m_f.unit == u.kg
+
     # Expected failures:
     bad_kws = [('P', -10*u.day), ('a', -10*u.au), ('e', 1.5), ('i', -10*u.deg)]
     for k, v in bad_kws:
@@ -63,6 +73,10 @@ def test_kepler():
         kw[k] = v
         with pytest.raises(ValueError):
             KeplerElements(**kw)
+
+    with pytest.raises(ValueError):
+        elems = KeplerElements(P=10*u.day, e=0.5, K=10*u.km/u.s, a=0.1*u.au,
+                               omega=10*u.deg, i=20*u.deg, Omega=30*u.deg)
 
     # Check warning
     with catch_warnings() as w:
