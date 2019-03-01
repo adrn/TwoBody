@@ -1,4 +1,4 @@
-0.5 (unreleased)
+0.5 (2019-03-01)
 ----------------
 
 - Added the option to initialize a ``KeplerElements`` or ``KeplerOrbit`` object
