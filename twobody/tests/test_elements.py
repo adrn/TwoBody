@@ -64,6 +64,7 @@ def test_kepler():
 
     assert elems.P.unit == u.s
     assert elems.K.unit == u.m/u.s
+    assert elems.K == 10*u.km/u.s
     assert elems.m_f.unit == u.kg
 
     # Expected failures:
