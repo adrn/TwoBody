@@ -96,8 +96,6 @@ matrix:
           env: PYTHON_VERSION=3.8 TOXENV=py38-test
 
     allow_failures:
-        Do a PEP8 test with flake8
-        (do allow to fail unless your code completely compliant)
         - os: linux
           python: 3.8
           name: Code style checks
