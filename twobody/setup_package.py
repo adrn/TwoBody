@@ -1,15 +1,17 @@
-from __future__ import absolute_import
+from collections import defaultdict
 from distutils.core import Extension
-from astropy_helpers import setup_helpers
+
 
 def get_extensions():
+    import numpy as np
+
     exts = []
 
     # malloc
     mac_incl_path = "/usr/include/malloc"
 
-    cfg = setup_helpers.DistutilsExtensionArgs()
-    cfg['include_dirs'].append('numpy')
+    cfg = defaultdict(list)
+    cfg['include_dirs'].append(np.get_include())
     cfg['include_dirs'].append(mac_incl_path)
     cfg['include_dirs'].append('twobody/')
     cfg['extra_compile_args'].append('--std=gnu99')
@@ -19,5 +21,3 @@ def get_extensions():
 
     return exts
 
-def get_package_data():
-    return {'twobody': ['data/*', 'src/*.h', 'src/*.c', '*.pyx', '*.pxd']}
