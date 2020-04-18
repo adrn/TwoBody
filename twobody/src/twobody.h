@@ -1,5 +1,5 @@
 #ifndef M_PI
-    #define M_PI 3.14159265358979323846
+    #define M_PI 3.14159265358979323846264338327950288
 #endif
 
 extern double c_mean_anomaly_from_eccentric_anomaly(double E, double e);
