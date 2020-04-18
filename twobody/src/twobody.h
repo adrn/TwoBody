@@ -1,3 +1,7 @@
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
 extern double c_mean_anomaly_from_eccentric_anomaly(double E, double e);
 extern double c_eccentric_anomaly_from_mean_anomaly_Newton1(double M, double e,
                                                             double tol,
