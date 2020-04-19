@@ -1,6 +1,7 @@
-0.6 (unreleased)
+0.6 (2020-04-18)
 ----------------
 
+- Removed `astropy-helpers` from repository.
 
 0.5 (2019-03-01)
 ----------------
