@@ -50,7 +50,7 @@ def test_anomaly_roundtrip(method):
 
     # M -> E -> M
     M_grid = np.linspace(0, 2*np.pi, N)
-    e_grid = np.linspace(0, 1 - 1E-6, N)  # MAGIC NUMBER: 1E-6
+    e_grid = np.linspace(0, 1 - 1E-3, N)  # MAGIC NUMBER: 1E-3
     Ms, es = [x.ravel() for x in np.meshgrid(M_grid, e_grid)]
 
     for M, e in zip(Ms, es):
@@ -64,7 +64,7 @@ def test_anomaly_roundtrip(method):
 
     # E -> M -> E
     E_grid = np.linspace(0, 2*np.pi, N)
-    e_grid = np.linspace(0, 1 - 1E-6, N)  # MAGIC NUMBER: 1E-6
+    e_grid = np.linspace(0, 1 - 1E-3, N)  # MAGIC NUMBER: 1E-3
     Es, es = [x.ravel() for x in np.meshgrid(E_grid, e_grid)]
 
     for E, e in zip(Es, es):
@@ -80,7 +80,7 @@ def test_anomaly_roundtrip(method):
 def test_true_anomaly_roundtrip():
     # f -> E -> f
     f_grid = np.linspace(0, 2*np.pi, N)
-    e_grid = np.linspace(0, 1 - 1E-6, N)  # MAGIC NUMBER: 1E-6
+    e_grid = np.linspace(0, 1 - 1E-3, N)  # MAGIC NUMBER: 1E-3
     fs, es = [x.ravel() for x in np.meshgrid(f_grid, e_grid)]
 
     E = eccentric_anomaly_from_true_anomaly(fs*u.rad, es)
@@ -89,7 +89,7 @@ def test_true_anomaly_roundtrip():
 
     # E -> f -> E
     E_grid = np.linspace(0, 2*np.pi, N)
-    e_grid = np.linspace(0, 1 - 1E-6, N)  # MAGIC NUMBER: 1E-6
+    e_grid = np.linspace(0, 1 - 1E-3, N)  # MAGIC NUMBER: 1E-3
     Es, es = [x.ravel() for x in np.meshgrid(E_grid, e_grid)]
 
     f = true_anomaly_from_eccentric_anomaly(Es*u.rad, es)
