@@ -1,6 +1,6 @@
 # Third-party
 from astropy.time import Time
-from astropy.utils.shapes import check_broadcast
+from astropy.utils import check_broadcast
 import numpy as np
 
 __all__ = ['ArrayProcessor']
