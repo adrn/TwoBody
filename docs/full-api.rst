@@ -5,3 +5,4 @@ Reference/API
 *************
 
 .. automodapi:: twobody
+    :no-inheritance-diagram:
