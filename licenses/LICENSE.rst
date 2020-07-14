@@ -1,4 +1,4 @@
-Copyright (c) 2017, Adrian Price-Whelan
+Copyright (c) 2017-2020, Adrian Price-Whelan
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,

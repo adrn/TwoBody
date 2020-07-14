@@ -4,11 +4,8 @@ twobody
 A Python package for computing orbits and astronomical observables for binary
 stars, exoplanets, and other gravitational two-body systems.
 
-.. image:: https://travis-ci.org/adrn/TwoBody.svg?branch=master
-    :target: https://travis-ci.org/adrn/TwoBody
-
-.. image:: https://coveralls.io/repos/github/adrn/TwoBody/badge.svg?branch=master
-    :target: https://coveralls.io/github/adrn/TwoBody?branch=master
+.. image:: https://github.com/adrn/TwoBody/workflows/Test%20twobody/badge.svg
+    :target: https://github.com/adrn/TwoBody/workflows/Test%20twobody
 
 .. image:: https://readthedocs.org/projects/twobody/badge/?version=latest
     :target: http://twobody.readthedocs.io/en/latest/?badge=latest
