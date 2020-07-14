@@ -1,6 +1,7 @@
-0.7 (unreleased)
+0.7 (2020-07-13)
 ----------------
 
+- Build cross-platform pip wheels.
 
 0.6 (2020-04-18)
 ----------------
