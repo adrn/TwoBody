@@ -67,7 +67,7 @@ def test_radial_velocity():
         _rp = orb.reference_plane(times)
         rv2 = -_rp.cartesian.differentials['s'].d_z + bc2.origin.radial_velocity
 
-        assert quantity_allclose(rv1, rv2, rtol=0, atol=1E-4*u.m/u.s)
+        assert quantity_allclose(rv1, rv2, rtol=0, atol=1E-3*u.m/u.s)
 
     # All RV's should be equivalent
     for n in range(n_iter):
