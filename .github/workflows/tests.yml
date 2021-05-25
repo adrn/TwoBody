@@ -22,11 +22,7 @@ jobs:
         if: "!startsWith(matrix.os, 'windows')"
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python }}
-
-      - name: Display Python version
-        if: "!startsWith(matrix.os, 'windows')"
-        run: python -c "import sys; print(sys.version)"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install Python dependencies - nix
         if: "!startsWith(matrix.os, 'windows')"
@@ -46,6 +42,10 @@ jobs:
           conda install -c conda-forge -q libpython
           python -m pip install -e .[test]
           python -m pip install tox tox-gh-actions
+
+      # All: show Python version
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
 
       # Run tests:
       - name: Test with tox
