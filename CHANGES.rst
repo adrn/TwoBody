@@ -1,3 +1,8 @@
+0.8 (2021-05-25)
+----------------
+
+- Updated the ``UnitSystem`` to be compatible with Astropy v4.3
+
 0.7 (2020-07-13)
 ----------------
 
