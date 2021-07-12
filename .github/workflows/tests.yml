@@ -27,11 +27,6 @@ jobs:
             toxenv: py39-test-devdeps
             toxposargs: --durations=50
 
-          - name: Python 3.7 with oldest supported version of all dependencies
-            os: ubuntu-latest
-            python: 3.7
-            toxenv: py37-test-oldestdeps
-
           # Mac and Windows:
           - name: Python 3.9 standard tests (macOS)
             os: macos-latest
@@ -42,6 +37,17 @@ jobs:
             os: windows-latest
             python: 3.9
             toxenv: py39-test
+
+          # Older Python versions:
+          - name: Python 3.8
+            os: ubuntu-latest
+            python: 3.8
+            toxenv: py38-test
+
+          - name: Python 3.7 with oldest supported version of all dependencies
+            os: ubuntu-latest
+            python: 3.7
+            toxenv: py37-test-oldestdeps
 
     steps:
       - uses: actions/checkout@v2
