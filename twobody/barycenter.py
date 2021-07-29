@@ -7,9 +7,6 @@ from astropy.time import Time
 import astropy.units as u
 import numpy as np
 
-# Project
-from .elements import _parse_time
-
 __all__ = ['Barycenter']
 
 
@@ -31,11 +28,10 @@ class Barycenter:
             The sky position of and distance to the barycenter at the specified
             epoch, ``t0``. If only a barycentric radial velocity is known or
             needed, pass in ``radial_velocity``.
-        t0 : numeric, `~astropy.coordinates.Time` (optional)
-            Reference epoch for the location of the barycenter. If a number is
-            passed in, it is assumed to be a solar system barycentric modified
-            julian date (BMJD). The default is J2000 if not specified.
-        radial_velocity : quantity_like (optional)
+        t0 : quantity-like, numeric, `~astropy.coordinates.Time` (optional)
+            Reference epoch for the location of the barycenter. The default is
+            J2000 if not specified.
+        radial_velocity : quantity-like (optional)
             If the coordinates or distance to the barycenter are not known or
             needed, you can just pass the radial velocity of the barycenter
             instead.
@@ -83,7 +79,7 @@ class Barycenter:
 
         if t0 is None:
             t0 = Time('J2000')
-        self.t0 = _parse_time(t0)
+        self.t0 = t0
 
     def __repr__(self):
         fmt_str = "<Barycenter: origin={0.origin}, epoch={0.t0}>".format(self)

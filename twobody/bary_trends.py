@@ -1,12 +1,13 @@
 import astropy.units as u
+from astropy.time import Time
 import numpy as np
-
-from .elements import _parse_time
 
 __all__ = ['RVTrend', 'PolynomialRVTrend']
 
+
 class RVTrend:
     pass
+
 
 class PolynomialRVTrend(RVTrend):
 
@@ -47,22 +48,27 @@ class PolynomialRVTrend(RVTrend):
             _coeffs.append(coeff.to(_unit))
 
         self.coeffs = tuple(_coeffs)
-
-        if t0 is not None:
-            t0 = _parse_time(t0)
         self.t0 = t0
 
     def __call__(self, t):
         """Evaluate the predicted velocity at the specified time."""
 
-        t = _parse_time(t)
-
         if len(self.coeffs) == 0:
             return np.zeros_like(t).astype(float)
 
+        if isinstance(self.t0, Time):
+            if not isinstance(t, Time):
+                raise TypeError(
+                    "t0 specified as an Astropy Time object, so you must pass "
+                    "in an Astropy Time object here."
+                )
+
         if self.t0 is not None:
-            t = (t - self.t0).jd
-        else:
+            t = t - self.t0
+            if hasattr(t, 'jd'):
+                t = t.jd
+
+        elif isinstance(t, Time):
             t = t.tcb.mjd
 
         coeffs = []

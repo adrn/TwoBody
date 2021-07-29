@@ -17,12 +17,6 @@ from .units import UnitSystem
 __all__ = ['OrbitalElements', 'KeplerElements', 'TwoBodyKeplerElements']
 
 
-def _parse_time(t):
-    if not isinstance(t, Time):
-        return Time(t, format='mjd', scale='tcb')
-    return t
-
-
 class ElementsMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, members):
@@ -94,10 +88,8 @@ class BaseKeplerElements(OrbitalElements):
             Longitude of the ascending node.
         M0 : quantity_like, `~astropy.coordinates.Angle` [angle] (optional)
             Mean anomaly at epoch ``t0``. Default is 0º if not specified.
-        t0 : numeric, `~astropy.coordinates.Time` (optional)
-            Reference epoch. If a number is passed in, it is assumed to be
-            a solar system barycentric modified julian date (BMJD). The default
-            is J2000 if not specified.
+        t0 : quantity-like, numeric, `~astropy.coordinates.Time` (optional)
+            Reference epoch.
         units : `~twobody.units.UnitSystem`, iterable (optional)
             The unit system to represent quantities in. The default unit system
             is accessible as `KeplerElements.default_units`.
@@ -111,8 +103,6 @@ class BaseKeplerElements(OrbitalElements):
         if t0 is None:
             # Default reference epoch is J2000
             t0 = Time('J2000')
-
-        t0 = _parse_time(t0)
 
         # Now check that required elements are defined:
         _required = ['P', 'omega']
@@ -188,7 +178,7 @@ class KeplerElements(BaseKeplerElements):
             Longitude of the ascending node.
         M0 : quantity_like, `~astropy.coordinates.Angle` [angle] (optional)
             Mean anomaly at epoch ``t0``. Default is 0º if not specified.
-        t0 : numeric, `~astropy.coordinates.Time` (optional)
+        t0 : quantity-like, numeric, `~astropy.coordinates.Time` (optional)
             Reference epoch. If a number is passed in, it is assumed to be
             a solar system barycentric modified julian date (BMJD). The default
             is J2000 if not specified.
@@ -268,7 +258,7 @@ class TwoBodyKeplerElements(BaseKeplerElements):
             Longitude of the ascending node of the fictitious particle.
         M0 : quantity_like, `~astropy.coordinates.Angle` [angle] (optional)
             Mean anomaly at epoch ``t0``. Default is 0º if not specified.
-        t0 : numeric, `~astropy.coordinates.Time` (optional)
+        t0 : quantity-like, numeric, `~astropy.coordinates.Time` (optional)
             Reference epoch. Default is J2000 if not specified.
         units : `~twobody.units.UnitSystem`, iterable (optional)
             The unit system to represent quantities in. The default unit system
@@ -327,7 +317,7 @@ class TwoBodyKeplerElements(BaseKeplerElements):
 
         return KeplerElements(a=a, P=self.P,
                               e=self.e, omega=omega, i=self.i, Omega=self.Omega,
-                              M0=self.M0, t0=self.t0)
+                              M0=self.M0, t0=self.t0, units=self.units)
 
     @property
     def primary(self):

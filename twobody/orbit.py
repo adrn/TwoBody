@@ -20,6 +20,7 @@ __all__ = ['KeplerOrbit']
 
 _KMS = u.km/u.s
 
+
 class KeplerOrbit:
 
     def __init__(self, elements=None, elements_type='kepler',
@@ -64,10 +65,8 @@ class KeplerOrbit:
             Longitude of the ascending node.
         M0 : quantity_like, `~astropy.coordinates.Angle` [angle] (optional)
             Mean anomaly at epoch ``t0``. Default is 0º if not specified.
-        t0 : numeric, `~astropy.coordinates.Time` (optional)
-            Reference epoch. If a number is passed in, it is assumed to be
-            a solar system barycentric modified julian date (BMJD). The default
-            is J2000 if not specified.
+        t0 : quantity-like, numeric, `~astropy.coordinates.Time` (optional)
+            Reference epoch. The default is J2000 if not specified.
         units : `~twobody.units.UnitSystem`, iterable (optional)
             The unit system to represent quantities in. The default unit system
             is accessible as `KeplerElements.default_units`.
@@ -190,12 +189,16 @@ class KeplerOrbit:
 
         # TODO: do we always want to use MJD? precision issues...
         time = time.tcb.mjd
+        if isinstance(self.t0, Time):
+            t0 = self.t0.tcb.mjd
+        else:
+            t0 = self.t0
         proc = ArrayProcessor(time)
         t, = proc.prepare_arrays()
         rv = cy_rv_from_elements(t, self.P.to(u.day).value, 1., self.e,
                                  self.omega.to(u.radian).value,
                                  self.M0.to(u.radian).value,
-                                 self.t0.tcb.mjd,
+                                 t0,
                                  anomaly_tol, anomaly_maxiter)
         return np.atleast_1d(proc.prepare_result(rv))
 
@@ -277,9 +280,21 @@ class KeplerOrbit:
             `~astropy.time.Time` object containing the times to evaluate at.
         """
 
+        if isinstance(self.t0, Time):
+            if not isinstance(time, Time):
+                raise TypeError(
+                    "t0 specified as an Astropy Time object, so you must pass "
+                    "in an Astropy Time object here."
+                )
+
+            dt = time.tcb - self.t0.tcb
+
+        else:
+            dt = time - self.t0
+
         # mean anomaly
         with u.set_enabled_equivalencies(u.dimensionless_angles()):
-            M = 2*pi * (time.tcb - self.t0.tcb) / self.P - self.M0
+            M = 2*pi * dt / self.P - self.M0
             M = M.to(u.radian)
 
         # eccentric anomaly
