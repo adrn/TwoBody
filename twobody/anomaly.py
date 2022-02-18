@@ -3,7 +3,10 @@ import inspect
 
 # Third-party
 import astropy.units as u
-from astropy.utils.decorators import wraps
+try:
+    from astropy.utils import wraps
+except ImportError:
+    from astropy.utils.decorators import wraps
 
 # Project
 from .wrap import (cy_mean_anomaly_from_eccentric_anomaly,
