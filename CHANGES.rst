@@ -1,3 +1,8 @@
+0.8.3 (2022-03-02)
+------------------
+
+- Fix compatibility with astropy 5.0 and later versions.
+
 0.8.2 (2021-11-09)
 ------------------
 
