@@ -3,13 +3,13 @@
 # no matter how it is invoked within the source tree.
 
 try:
-    from astropy.tests.plugins.display import (PYTEST_HEADER_MODULES,
-                                               TESTED_VERSIONS)
-    from astropy.tests.helper import enable_deprecations_as_exceptions
-except ImportError:
-    from astropy.tests.pytest_plugins import (PYTEST_HEADER_MODULES,
-                                              enable_deprecations_as_exceptions,
-                                              TESTED_VERSIONS)
+    from pytest_astropy_header.display import (
+        PYTEST_HEADER_MODULES,
+        TESTED_VERSIONS
+    )
+except ImportError:  # In case this plugin is not installed
+    PYTEST_HEADER_MODULES = {}
+    TESTED_VERSIONS = {}
 
 ## Uncomment the following line to treat all DeprecationWarnings as
 ## exceptions. For Astropy v2.0 or later, there are 2 additional keywords,
