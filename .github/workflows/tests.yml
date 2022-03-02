@@ -16,6 +16,11 @@ jobs:
       matrix:
         include:
 
+          - name: Python 3.10 standard tests
+            os: ubuntu-latest
+            python: '3.10'
+            toxenv: py310-test
+
           - name: Python 3.9 with minimal dependencies and coverage
             os: ubuntu-latest
             python: 3.9
