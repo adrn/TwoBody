@@ -35,7 +35,7 @@ jobs:
           python-version: "3.7"
 
       # Windows:
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@v3
         if: startsWith(matrix.os, 'windows')
         with:
           auto-update-conda: true
