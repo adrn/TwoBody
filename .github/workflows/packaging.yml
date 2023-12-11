@@ -29,7 +29,7 @@ jobs:
       # Mac / linux:
       - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
         if: "!startsWith(matrix.os, 'windows')"
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           # Note: cibuildwheel builds for many Python versions beyond this one
           python-version: "3.7"
@@ -59,7 +59,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Install Python
         with:
           python-version: "3.7"
