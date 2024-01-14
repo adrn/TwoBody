@@ -1,30 +1,32 @@
 # Third-party
 import astropy.coordinates as coord
-from astropy.coordinates.matrix_utilities import matrix_product, rotation_matrix
-from astropy.time import Time
 import astropy.units as u
 import numpy as np
+from astropy.coordinates.matrix_utilities import matrix_product, rotation_matrix
+from astropy.time import Time
 from numpy import pi
 
 # Project
 from . import elements as elem
-from .anomaly import (eccentric_anomaly_from_mean_anomaly,
-                      true_anomaly_from_eccentric_anomaly)
-from .utils import ArrayProcessor
+from .anomaly import (
+    eccentric_anomaly_from_mean_anomaly,
+    true_anomaly_from_eccentric_anomaly,
+)
+from .bary_trends import PolynomialRVTrend, RVTrend
 from .barycenter import Barycenter
-from .wrap import cy_rv_from_elements
 from .reference_plane import ReferencePlaneFrame
-from .bary_trends import RVTrend, PolynomialRVTrend
+from .utils import ArrayProcessor
+from .wrap import cy_rv_from_elements
 
-__all__ = ['KeplerOrbit']
+__all__ = ["KeplerOrbit"]
 
-_KMS = u.km/u.s
+_KMS = u.km / u.s
 
 
 class KeplerOrbit:
-
-    def __init__(self, elements=None, elements_type='kepler',
-                 barycenter=None, **kwargs):
+    def __init__(
+        self, elements=None, elements_type="kepler", barycenter=None, **kwargs
+    ):
         """Represents a bound Kepler orbit.
 
         Parameters
@@ -94,19 +96,19 @@ class KeplerOrbit:
         """
 
         if elements is None:
-            elements_cls = getattr(elem,
-                                   "{0}Elements"
-                                   .format(elements_type.capitalize()))
+            elements_cls = getattr(
+                elem, "{0}Elements".format(elements_type.capitalize())
+            )
 
             # pass everything in kwargs to the class initializer
             elements = elements_cls(**kwargs)
 
         elif not isinstance(elements, elem.OrbitalElements):
-            raise TypeError("'elements' must be an instance of an "
-                            "OrbitalElements subclass.")
+            raise TypeError(
+                "'elements' must be an instance of an " "OrbitalElements subclass."
+            )
 
-        if barycenter is not None and not isinstance(barycenter, (RVTrend,
-                                                                  Barycenter)):
+        if barycenter is not None and not isinstance(barycenter, (RVTrend, Barycenter)):
             raise TypeError("barycenter must be a twobody.Barycenter instance")
 
         self.elements = elements
@@ -119,8 +121,7 @@ class KeplerOrbit:
             self._vtrend = lambda t: 0
 
         else:
-            self._vtrend = PolynomialRVTrend([
-                barycenter.origin.radial_velocity])
+            self._vtrend = PolynomialRVTrend([barycenter.origin.radial_velocity])
 
         self._barycenter = barycenter
 
@@ -135,24 +136,26 @@ class KeplerOrbit:
     # Python special methods
 
     def __getattr__(self, name):
-
         # This gives access to the orbital element components directly from the
         # Orbit instance
         if hasattr(self.elements, name):
             return getattr(self.elements, name)
 
         else:
-            raise AttributeError("type object '{0}' has no attribute '{1}'"
-                                 .format(self.__class__.__name__, name))
+            raise AttributeError(
+                "type object '{0}' has no attribute '{1}'".format(
+                    self.__class__.__name__, name
+                )
+            )
 
     def __copy__(self):
         import copy
+
         elements = copy.copy(self.elements)
         barycen = copy.copy(self.barycenter)
         return self.__class__(elements=elements, barycenter=barycen)
 
-    def unscaled_radial_velocity(self, time,
-                                 anomaly_tol=None, anomaly_maxiter=None):
+    def unscaled_radial_velocity(self, time, anomaly_tol=None, anomaly_maxiter=None):
         """Compute the unscaled radial velocity of the body at the specified
         times relative to the barycenter or reference point, i.e. in the
         reference plane system not in a solar system barycentric frame.
@@ -181,7 +184,7 @@ class KeplerOrbit:
         """
         if anomaly_tol is None:
             # TODO: make this a config item?
-            anomaly_tol = 1E-10
+            anomaly_tol = 1e-10
 
         if anomaly_maxiter is None:
             # TODO: make this a config item?
@@ -194,12 +197,18 @@ class KeplerOrbit:
         else:
             t0 = self.t0
         proc = ArrayProcessor(time)
-        t, = proc.prepare_arrays()
-        rv = cy_rv_from_elements(t, self.P.to(u.day).value, 1., self.e,
-                                 self.omega.to(u.radian).value,
-                                 self.M0.to(u.radian).value,
-                                 t0,
-                                 anomaly_tol, anomaly_maxiter)
+        (t,) = proc.prepare_arrays()
+        rv = cy_rv_from_elements(
+            t,
+            self.P.to(u.day).value,
+            1.0,
+            self.e,
+            self.omega.to(u.radian).value,
+            self.M0.to(u.radian).value,
+            t0,
+            anomaly_tol,
+            anomaly_maxiter,
+        )
         return np.atleast_1d(proc.prepare_result(rv))
 
     def radial_velocity(self, time, anomaly_tol=None, anomaly_maxiter=None):
@@ -261,12 +270,14 @@ class KeplerOrbit:
         trend = self._vtrend(time)
         rv = self.K * self.unscaled_radial_velocity(time) + trend
         if not rv.unit.is_equivalent(_KMS):
-            raise ValueError('Orbit does not have enough valid orbital '
-                             'element information to compute a unit-ful '
-                             'radial velocity. Use '
-                             '`unscaled_radial_velocity()` manually, or '
-                             're-initialize with full information (e.g., '
-                             'with all angles specified: i, Omega)')
+            raise ValueError(
+                "Orbit does not have enough valid orbital "
+                "element information to compute a unit-ful "
+                "radial velocity. Use "
+                "`unscaled_radial_velocity()` manually, or "
+                "re-initialize with full information (e.g., "
+                "with all angles specified: i, Omega)"
+            )
         return rv
 
     def orbital_plane(self, time):
@@ -294,7 +305,7 @@ class KeplerOrbit:
 
         # mean anomaly
         with u.set_enabled_equivalencies(u.dimensionless_angles()):
-            M = 2*pi * dt / self.P - self.M0
+            M = 2 * pi * dt / self.P - self.M0
             M = M.to(u.radian)
 
         # eccentric anomaly
@@ -304,14 +315,14 @@ class KeplerOrbit:
         f = true_anomaly_from_eccentric_anomaly(E, self.e)
 
         # distance from center of mass to orbiting body
-        r = self.a * (1. - self.e * np.cos(E))
+        r = self.a * (1.0 - self.e * np.cos(E))
 
         # compute the orbit in the cartesian, orbital plane system (xyz):
         x = r * np.cos(f)
         y = r * np.sin(f)
         z = np.zeros_like(x)
 
-        fac = 2*pi * self.a / self.P / np.sqrt(1 - self.e**2)
+        fac = 2 * pi * self.a / self.P / np.sqrt(1 - self.e**2)
         vx = -fac * np.sin(f)
         vy = fac * (np.cos(f) + self.e)
         vz = np.zeros_like(vx)
@@ -333,14 +344,14 @@ class KeplerOrbit:
         """
 
         xyz = self.orbital_plane(time)
-        vxyz = xyz.differentials['s']
+        vxyz = xyz.differentials["s"]
         xyz = xyz.without_differentials()
 
         # Construct rotation matrix to take the orbit from the orbital plane
         # system (xyz) to the reference plane system (XYZ):
-        R1 = rotation_matrix(-self.omega, axis='z')
-        R2 = rotation_matrix(self.i, axis='x')
-        R3 = rotation_matrix(self.Omega, axis='z')
+        R1 = rotation_matrix(-self.omega, axis="z")
+        R2 = rotation_matrix(self.i, axis="x")
+        R3 = rotation_matrix(self.Omega, axis="z")
         Rot = matrix_product(R3, R2, R1)
 
         # Rotate to the reference plane system
@@ -350,7 +361,7 @@ class KeplerOrbit:
 
         kw = dict()
         if self.barycenter is not None:
-            kw['origin'] = self.barycenter.origin
+            kw["origin"] = self.barycenter.origin
         return ReferencePlaneFrame(XYZ, **kw)
 
     def icrs(self, time):
@@ -364,12 +375,12 @@ class KeplerOrbit:
         """
         rp = self.reference_plane(time)
 
-        icrs_cart = rp.transform_to(coord.ICRS).cartesian
+        icrs_cart = rp.transform_to(coord.ICRS()).cartesian
         icrs_pos = icrs_cart.without_differentials()
-        icrs_vel = icrs_cart.differentials['s']
+        icrs_vel = icrs_cart.differentials["s"]
 
         bary_cart = self.barycenter.origin.cartesian
-        bary_vel = bary_cart.differentials['s']
+        bary_vel = bary_cart.differentials["s"]
 
         dt = time - self.barycenter.t0
         dx = (bary_vel * dt).to_cartesian()
@@ -379,8 +390,7 @@ class KeplerOrbit:
 
         return coord.ICRS(new_pos.with_differentials(new_vel))
 
-    def plot_rv(self, time, ax=None, rv_unit=None, t_kwargs=None,
-                plot_kwargs=None):
+    def plot_rv(self, time, ax=None, rv_unit=None, t_kwargs=None, plot_kwargs=None):
         """Plot the line-of-sight or radial velocity at the specified times.
 
         Parameters
@@ -409,27 +419,28 @@ class KeplerOrbit:
 
         if ax is None:
             import matplotlib.pyplot as plt
+
             ax = plt.gca()
 
         if rv_unit is None:
             rv_unit = u.km / u.s
 
         if t_kwargs is None:
-            t_kwargs = dict(format='mjd', scale='tcb')
+            t_kwargs = dict(format="mjd", scale="tcb")
 
         if plot_kwargs is None:
             plot_kwargs = dict()
 
         style = plot_kwargs.copy()
-        style.setdefault('linestyle', '-')
-        style.setdefault('alpha', 0.5)
-        style.setdefault('marker', None)
+        style.setdefault("linestyle", "-")
+        style.setdefault("alpha", 0.5)
+        style.setdefault("marker", None)
 
         if not isinstance(time, Time):
             time = Time(time, **t_kwargs)
         rv = self.radial_velocity(time).to(rv_unit).value
 
-        _t = getattr(getattr(time, t_kwargs['scale']), t_kwargs['format'])
+        _t = getattr(getattr(time, t_kwargs["scale"]), t_kwargs["format"])
         ax.plot(_t, rv, **style)
 
         return ax

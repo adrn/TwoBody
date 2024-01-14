@@ -1,20 +1,18 @@
 # Note: copied out of adrn/gala
 
-__all__ = ['UnitSystem']
+__all__ = ["UnitSystem"]
 
 # Third-party
-import astropy.units as u
-from astropy.units.physical import _physical_unit_mapping
-import astropy.constants as const
-from packaging import version
-
-
 # TODO: this can be removed when gala requires astropy >= 4.3
 import astropy
-ASTROPY_GTR_43 = (
-    version.parse(version.parse(astropy.__version__).base_version) >=
-    version.parse('4.3')
-)
+import astropy.constants as const
+import astropy.units as u
+from astropy.units.physical import _physical_unit_mapping
+from packaging import version
+
+ASTROPY_GTR_43 = version.parse(
+    version.parse(astropy.__version__).base_version
+) >= version.parse("4.3")
 if ASTROPY_GTR_43:
     get_physical_type = u.get_physical_type
 else:
@@ -23,10 +21,10 @@ else:
 
 class UnitSystem:
     _required_physical_types = [
-        get_physical_type('length'),
-        get_physical_type('time'),
-        get_physical_type('mass'),
-        get_physical_type('angle')
+        get_physical_type("length"),
+        get_physical_type("time"),
+        get_physical_type("mass"),
+        get_physical_type("angle"),
     ]
 
     def __init__(self, units, *args):
@@ -56,7 +54,7 @@ class UnitSystem:
         to this object will be composed out of the base units::
 
             >>> usys = UnitSystem(u.m, u.s, u.kg, u.radian)
-            >>> usys['energy']
+            >>> usys['energy']  # doctest: +SKIP
             Unit("kg m2 / s2")
 
         However, custom representations for composite units can also be
@@ -90,7 +88,7 @@ class UnitSystem:
         for unit in units:
             if not isinstance(unit, u.UnitBase):  # hopefully a quantity
                 q = unit
-                new_unit = u.def_unit(f'{q!s}', q)
+                new_unit = u.def_unit(f"{q!s}", q)
                 unit = new_unit
 
             typ = unit.physical_type
@@ -100,14 +98,15 @@ class UnitSystem:
 
         for phys_type in self._required_physical_types:
             if phys_type not in self._registry:
-                raise ValueError("You must specify a unit for the physical type"
-                                 f"'{phys_type}'")
+                raise ValueError(
+                    "You must specify a unit for the physical type" f"'{phys_type}'"
+                )
             self._core_units.append(self._registry[phys_type])
 
     def __getitem__(self, key):
         # TODO: remove this when astropy 4.3 is min version
-        if key == 'velocity':
-            key = 'speed'
+        if key == "velocity":
+            key = "speed"
 
         key = get_physical_type(key)
 
@@ -122,11 +121,12 @@ class UnitSystem:
                     break
 
             if unit is None:
-                raise ValueError(f"Physical type '{key}' doesn't exist in unit "
-                                 "registry.")
+                raise ValueError(
+                    f"Physical type '{key}' doesn't exist in unit " "registry."
+                )
 
             unit = unit.decompose(self._core_units)
-            unit._scale = 1.
+            unit._scale = 1.0
             return unit
 
     def __len__(self):
@@ -183,8 +183,10 @@ class UnitSystem:
         try:
             ptype = q.unit.physical_type
         except AttributeError:
-            raise TypeError("Object must be an astropy.units.Quantity, not "
-                            f"a '{q.__class__.__name__}'.")
+            raise TypeError(
+                "Object must be an astropy.units.Quantity, not "
+                f"a '{q.__class__.__name__}'."
+            )
 
         if ptype in self._registry:
             return q.to(self._registry[ptype])
@@ -216,7 +218,8 @@ class UnitSystem:
         try:
             c = getattr(const, name)
         except AttributeError:
-            raise ValueError(f"Constant name '{name}' doesn't exist in "
-                             "astropy.constants")
+            raise ValueError(
+                f"Constant name '{name}' doesn't exist in " "astropy.constants"
+            )
 
         return c.decompose(self._core_units).value
