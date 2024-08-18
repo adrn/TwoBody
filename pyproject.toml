@@ -46,8 +46,8 @@ where = ["."]
 include = ["twobody", "twobody.*"]
 
 [tool.setuptools.package-data]
-"*" = ["*.c"]
-"twobody.src" = ["*.pyx", "*.pxd", "*.h"]
+"*" = ["*.c", "*.pyx", "*.pxd"]
+"twobody.src" = ["*.h"]
 
 [tool.setuptools_scm]
 version_file = "twobody/_version.py"
