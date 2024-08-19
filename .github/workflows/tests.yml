@@ -21,15 +21,15 @@ jobs:
             python: '3.10'
             toxenv: py310-test
 
+          - name: Python 3.11 standard tests
+            os: ubuntu-latest
+            python: '3.11'
+            toxenv: py311-test
+
           - name: Python 3.12 standard tests
             os: ubuntu-latest
             python: '3.12'
             toxenv: py312-test
-
-          - name: Python 3.11 with minimal dependencies and coverage
-            os: ubuntu-latest
-            python: '3.11'
-            toxenv: py311-test-cov
 
           - name: Python 3.11 dev dependencies
             os: ubuntu-latest
