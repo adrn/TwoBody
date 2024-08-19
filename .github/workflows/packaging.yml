@@ -9,6 +9,7 @@ on:
   release:
     types:
       - published
+      - edited
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
