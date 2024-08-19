@@ -21,10 +21,15 @@ jobs:
             python: '3.10'
             toxenv: py310-test
 
-          - name: Python 3.11 with minimal dependencies and coverage
+          - name: Python 3.11 standard tests
             os: ubuntu-latest
             python: '3.11'
-            toxenv: py311-test-cov
+            toxenv: py311-test
+
+          - name: Python 3.12 standard tests
+            os: ubuntu-latest
+            python: '3.12'
+            toxenv: py312-test
 
           - name: Python 3.11 dev dependencies
             os: ubuntu-latest
@@ -42,12 +47,6 @@ jobs:
             os: windows-latest
             python: '3.11'
             toxenv: py311-test
-
-          # Older Python versions:
-          - name: Python 3.9 with oldest supported version of all dependencies
-            os: ubuntu-latest
-            python: '3.9'
-            toxenv: py39-test-oldestdeps
 
     steps:
       - uses: actions/checkout@v4

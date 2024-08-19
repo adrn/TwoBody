@@ -1,13 +1,16 @@
 # Third-party
-import astropy.units as u
 import astropy.coordinates as coord
-from astropy.coordinates import (frame_transform_graph, CoordinateAttribute,
-                                 FunctionTransform, AffineTransform, ICRS)
-from astropy.coordinates.matrix_utilities import (rotation_matrix,
-                                                  matrix_product,
-                                                  matrix_transpose)
+import astropy.units as u
+from astropy.coordinates import (
+    ICRS,
+    AffineTransform,
+    CoordinateAttribute,
+    FunctionTransform,
+    frame_transform_graph,
+)
+from astropy.coordinates.matrix_utilities import rotation_matrix
 
-__all__ = ['ReferencePlaneFrame']
+__all__ = ["ReferencePlaneFrame"]
 
 _cache = {}
 
@@ -33,33 +36,36 @@ def _make_cls(framecls):
 
         def __new__(cls, name, bases, members):
             # Only 'origin' is needed here, to set the origin frame properly.
-            members['origin'] = CoordinateAttribute(frame=framecls,
-                                                    default=None)
+            members["origin"] = CoordinateAttribute(frame=framecls, default=None)
 
             # This has to be done because FrameMeta will set these attributes
             # to the defaults from BaseCoordinateFrame when it creates the base
             # SkyOffsetFrame class initially.
-            members['_default_representation'] = framecls._default_representation
-            members['_default_differential'] = framecls._default_differential
+            members["_default_representation"] = framecls._default_representation
+            members["_default_differential"] = framecls._default_differential
 
-            newname = name[:-5] if name.endswith('Frame') else name
+            newname = name[:-5] if name.endswith("Frame") else name
             newname += framecls.__name__
 
             return super().__new__(cls, newname, bases, members)
 
-    _ReferencePlaneFramecls = ReferencePlaneMeta('ReferencePlaneFrame',
+    _ReferencePlaneFramecls = ReferencePlaneMeta(
+        "ReferencePlaneFrame",
         (ReferencePlaneFrame, framecls),
-        {'__doc__': ReferencePlaneFrame.__doc__})
+        {"__doc__": ReferencePlaneFrame.__doc__},
+    )
 
-    @frame_transform_graph.transform(FunctionTransform,
-                                     _ReferencePlaneFramecls,
-                                     _ReferencePlaneFramecls)
+    @frame_transform_graph.transform(
+        FunctionTransform, _ReferencePlaneFramecls, _ReferencePlaneFramecls
+    )
     def referenceplane_to_referenceplane(from_coord, to_frame):
         """Transform between two reference plane frames."""
 
         if not from_coord.origin.has_data or not to_frame.origin.has_data:
-            raise ValueError("Reference plane origin frame object must have "
-                             "data, i.e. it must have a position specified.")
+            raise ValueError(
+                "Reference plane origin frame object must have "
+                "data, i.e. it must have a position specified."
+            )
 
         # This transform goes through the parent frames on each side.
         # from_frame -> from_frame.origin -> to_frame.origin -> to_frame
@@ -67,42 +73,45 @@ def _make_cls(framecls):
         intermediate_to = intermediate_from.transform_to(to_frame.origin)
         return intermediate_to.transform_to(to_frame)
 
-    @frame_transform_graph.transform(AffineTransform, _ReferencePlaneFramecls,
-                                     framecls)
+    @frame_transform_graph.transform(AffineTransform, _ReferencePlaneFramecls, framecls)
     def referenceplane_to_coord(reference_plane_coord, to_frame):
         """Convert a reference plane coordinate to the original system"""
 
-        if (reference_plane_coord.origin is None or
-                not reference_plane_coord.origin.has_data):
-            raise ValueError("Reference plane origin frame object must have "
-                             "data, i.e. it must have a position specified.")
+        if (
+            reference_plane_coord.origin is None
+            or not reference_plane_coord.origin.has_data
+        ):
+            raise ValueError(
+                "Reference plane origin frame object must have "
+                "data, i.e. it must have a position specified."
+            )
 
         origin = reference_plane_coord.origin.spherical
         if origin.distance.unit == u.dimensionless_unscaled:
-            dist = 0. * u.pc
+            dist = 0.0 * u.pc
         else:
             dist = origin.distance
         sun = coord.CartesianRepresentation([0, 0, 1] * dist)
 
-        mat1 = rotation_matrix(90*u.deg+origin.lat, 'y')
-        mat2 = rotation_matrix(-origin.lon, 'z')
-        M = matrix_product(mat2, mat1)
+        mat1 = rotation_matrix(90 * u.deg + origin.lat, "y")
+        mat2 = rotation_matrix(-origin.lon, "z")
+        M = mat2 @ mat1
 
         offset = (-sun).transform(M)
         return M, offset
 
-    @frame_transform_graph.transform(AffineTransform, framecls,
-                                     _ReferencePlaneFramecls)
+    @frame_transform_graph.transform(AffineTransform, framecls, _ReferencePlaneFramecls)
     def coord_to_referenceplane(from_coord, to_reference_plane):
         """Convert a sky coordinate to a reference-plane frame."""
 
-        if (to_reference_plane.origin is None or
-                not to_reference_plane.origin.has_data):
-            raise ValueError("Reference plane origin frame object must have "
-                             "data, i.e. it must have a position specified.")
+        if to_reference_plane.origin is None or not to_reference_plane.origin.has_data:
+            raise ValueError(
+                "Reference plane origin frame object must have "
+                "data, i.e. it must have a position specified."
+            )
 
         M, offset = referenceplane_to_coord(to_reference_plane, from_coord)
-        M = matrix_transpose(M)
+        M = M.T
         offset = (-offset).transform(M)
         return M, offset
 
@@ -143,14 +152,15 @@ class ReferencePlaneFrame(coord.BaseCoordinateFrame):
     def __new__(cls, *args, **kwargs):
         # We don't want to call this method if we've already set up
         # an skyoffset frame for this class.
-        if not (issubclass(cls, ReferencePlaneFrame) and
-                cls is not ReferencePlaneFrame):
+        if not (
+            issubclass(cls, ReferencePlaneFrame) and cls is not ReferencePlaneFrame
+        ):
             # We get the origin argument, and handle it here. Default is ICRS:
             # the user might want to use arbitrary reference plane coordinates
             # without every transforming them
-            origin_frame = kwargs.get('origin', ICRS())
+            origin_frame = kwargs.get("origin", ICRS())
 
-            if hasattr(origin_frame, 'frame'):
+            if hasattr(origin_frame, "frame"):
                 origin_frame = origin_frame.frame
             newcls = _make_cls(origin_frame.__class__)
             return newcls.__new__(newcls, *args, **kwargs)
@@ -166,7 +176,8 @@ class ReferencePlaneFrame(coord.BaseCoordinateFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.origin is not None and not self.origin.has_data:
-            raise ValueError('The origin supplied to ReferencePlaneFrame has '
-                             'no data.')
-        if self.has_data and hasattr(self.data, 'lon'):
-            self.data.lon.wrap_angle = 180*u.deg
+            raise ValueError(
+                "The origin supplied to ReferencePlaneFrame has " "no data."
+            )
+        if self.has_data and hasattr(self.data, "lon"):
+            self.data.lon.wrap_angle = 180 * u.deg

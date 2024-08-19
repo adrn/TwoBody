@@ -1,13 +1,10 @@
 # Third-party
-from astropy.time import Time
-from astropy.utils import check_broadcast
 import numpy as np
 
-__all__ = ['ArrayProcessor']
+__all__ = ["ArrayProcessor"]
 
 
 class ArrayProcessor:
-
     def __init__(self, *arrs):
         self.arrs = [np.array(arr) for arr in arrs]
 
@@ -26,10 +23,6 @@ class ArrayProcessor:
             orig_shapes.append(arr.shape)
             arr = np.broadcast_to(arr, self.max_shape).ravel()
             arrs_1d.append(np.ascontiguousarray(arr.astype(np.float64)))
-
-        if not check_broadcast(orig_shapes):
-            raise ValueError("Shapes are not broadcastable: {0}"
-                             .format(orig_shapes))
 
         return arrs_1d
 
@@ -76,6 +69,7 @@ def format_doc(docstring, *args, **kwargs):
     Using this decorator allows, for example Sphinx, to parse the
     correct docstring.
     """
+
     def set_docstring(obj):
         if docstring is None:
             # None means: use the objects __doc__
@@ -92,13 +86,16 @@ def format_doc(docstring, *args, **kwargs):
 
         if not doc:
             # In case the docstring is empty it's probably not what was wanted.
-            raise ValueError('docstring must be a string or containing a '
-                             'docstring that is not empty.')
+            raise ValueError(
+                "docstring must be a string or containing a "
+                "docstring that is not empty."
+            )
 
         # If the original has a not-empty docstring append it to the format
         # kwargs.
-        _doc = obj.__doc__ or ''
+        _doc = obj.__doc__ or ""
         doc = doc.format(__doc__=_doc)
         obj.__doc__ = doc.format(*args, **kwargs)
         return obj
+
     return set_docstring

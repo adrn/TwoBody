@@ -2,7 +2,7 @@
 import astropy.coordinates as coord
 import astropy.units as u
 import numpy as np
-from astropy.coordinates.matrix_utilities import matrix_product, rotation_matrix
+from astropy.coordinates.matrix_utilities import rotation_matrix
 from astropy.time import Time
 from numpy import pi
 
@@ -96,9 +96,7 @@ class KeplerOrbit:
         """
 
         if elements is None:
-            elements_cls = getattr(
-                elem, "{0}Elements".format(elements_type.capitalize())
-            )
+            elements_cls = getattr(elem, f"{elements_type.capitalize()}Elements")
 
             # pass everything in kwargs to the class initializer
             elements = elements_cls(**kwargs)
@@ -143,9 +141,7 @@ class KeplerOrbit:
 
         else:
             raise AttributeError(
-                "type object '{0}' has no attribute '{1}'".format(
-                    self.__class__.__name__, name
-                )
+                f"type object '{self.__class__.__name__}' has no attribute '{name}'"
             )
 
     def __copy__(self):
@@ -352,14 +348,14 @@ class KeplerOrbit:
         R1 = rotation_matrix(-self.omega, axis="z")
         R2 = rotation_matrix(self.i, axis="x")
         R3 = rotation_matrix(self.Omega, axis="z")
-        Rot = matrix_product(R3, R2, R1)
+        Rot = R3 @ R2 @ R1
 
         # Rotate to the reference plane system
-        XYZ = coord.CartesianRepresentation(matrix_product(Rot, xyz.xyz))
-        VXYZ = coord.CartesianDifferential(matrix_product(Rot, vxyz.d_xyz))
+        XYZ = coord.CartesianRepresentation(Rot @ xyz.xyz)
+        VXYZ = coord.CartesianDifferential(Rot @ vxyz.d_xyz)
         XYZ = XYZ.with_differentials(VXYZ)
 
-        kw = dict()
+        kw = {}
         if self.barycenter is not None:
             kw["origin"] = self.barycenter.origin
         return ReferencePlaneFrame(XYZ, **kw)
